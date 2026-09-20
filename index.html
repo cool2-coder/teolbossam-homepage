@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>털보쌤 | 숲은 놀이터이면서 동시에 인생학교입니다</title>
+<meta name="description" content="어린이 자연탐험 교육 브랜드 털보쌤. 숲에서 아이가 스스로 발견하고, 질문하고, 도전하고, 협력하고, 감사하며 성장하는 시간을 만듭니다.">
+<meta property="og:title" content="털보쌤 | 숲은 놀이터이면서 동시에 인생학교입니다">
+<meta property="og:description" content="LEARN · EXPLORE · GROW — 어린이 자연탐험 교육 브랜드 털보쌤의 공식 홈페이지">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">본문 바로가기</a>
+
+<!--
+  BRAND ASSET SLOTS — 공식 BI가 준비되면 이 파일들만 추가하면 자동 반영됩니다.
+  assets/brand/README.md 에 정확한 규격과 동작 방식이 정리되어 있습니다.
+    - assets/brand/brand-signature.svg  → 헤더 워드마크를 대체
+    - assets/brand/brand-emblem.svg     → 푸터 브랜드 블록을 대체
+  파일이 없는 동안에는 실제 텍스트 워드마크가 안전한 폴백으로 표시되며,
+  가짜 로고 이미지를 임의로 만들어 넣지 않았습니다.
+-->
+
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <a href="#top" class="brand" aria-label="털보쌤 홈으로 이동">
+      <span class="brand-slot" data-brand-slot>
+        <img data-brand-asset src="assets/brand/brand-signature.svg" alt="털보쌤 — LEARN · EXPLORE · GROW">
+        <span class="brand-fallback brand-text">털보쌤<em>TEOLBOSSAM</em></span>
+      </span>
+    </a>
+
+    <nav class="main-nav" id="mainNav" aria-label="주요 메뉴">
+      <a href="#philosophy">철학</a>
+      <a href="#principles">교육방법</a>
+      <a href="#programs">프로그램</a>
+      <a href="#fieldnote">필드노트</a>
+      <a href="#institutions">기관 출강</a>
+      <a href="#contact" class="nav-cta">수업 문의</a>
+    </nav>
+
+    <button class="nav-toggle" id="navToggle" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mainNav">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="top">
+    <div class="hero-bg" aria-hidden="true">
+      <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 620 C 150 560, 300 660, 460 600 C 640 530, 760 640, 950 580 C 1080 540, 1150 600, 1200 570 L1200 800 L0 800 Z" fill="var(--brand-brown)" opacity="0.3"/>
+        <path d="M0 680 C 200 640, 380 720, 560 660 C 760 600, 900 700, 1200 650 L1200 800 L0 800 Z" fill="var(--surface-dark-deep)"/>
+      </svg>
+    </div>
+
+    <div class="container hero-inner">
+      <p class="brand-stamp reveal">
+        <span>LEARN</span><span class="dot">·</span><span>EXPLORE</span><span class="dot">·</span><span>GROW</span>
+      </p>
+      <h1 class="hero-title reveal">
+        자연을 설명하기보다,<br>
+        <span class="highlight">직접 만나게</span> 합니다.
+      </h1>
+      <p class="hero-desc reveal">
+        숲에서 놀고, 질문하고, 도전하며<br class="br-desktop">
+        자연과 함께 성장하는 아이들의 시간.
+      </p>
+      <div class="hero-actions reveal">
+        <a href="#programs" class="btn btn-primary">프로그램 둘러보기</a>
+        <a href="#institutions" class="btn btn-outline">기관 출강 문의</a>
+      </div>
+
+      <dl class="hero-stats reveal">
+        <div><dt>10+</dt><dd>년간의 야외 수업 기록</dd></div>
+        <div><dt>120+</dt><dd>협력 기관 · 학교</dd></div>
+        <div><dt>4</dt><dd>개의 탐험 프로그램</dd></div>
+      </dl>
+    </div>
+
+    <!-- 향후 실제 숲체험 사진이 들어갈 영역. 메시지보다 크지 않도록 작게 유지합니다. -->
+    <div class="hero-media reveal" aria-hidden="true">
+      <div class="hero-photo-slot">
+        <svg class="hero-photo-sketch" viewBox="0 0 96 96" fill="none">
+          <path d="M12 74c5-24 15-38 32-38s27 14 32 38" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="44" cy="30" r="11" stroke="currentColor" stroke-width="2.5"/>
+          <path d="M62 22c4-6 9-8 13-7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <span class="field-tag">TODAY'S FIELD NOTE</span>
+      </div>
+    </div>
+
+    <a class="scroll-cue" href="#philosophy" aria-label="아래로 스크롤">
+      <span></span>
+    </a>
+  </section>
+
+  <!-- ================= PHILOSOPHY (구 About) ================= -->
+  <section class="section philosophy" id="philosophy">
+    <div class="container about-inner">
+      <div class="about-media reveal">
+        <div class="about-photo">
+          <svg viewBox="0 0 400 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="400" height="480" rx="8" fill="var(--brand-brown)"/>
+            <circle cx="200" cy="190" r="80" fill="var(--bg-cream)" opacity="0.12"/>
+            <path d="M120 380c14-70 46-118 80-118s66 48 80 118" stroke="var(--bg-cream)" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85"/>
+            <circle cx="200" cy="170" r="46" stroke="var(--bg-cream)" stroke-width="3" fill="none" opacity="0.85"/>
+            <path d="M170 200c6 18 24 28 30 28s24-10 30-28" stroke="var(--bg-cream)" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85"/>
+          </svg>
+          <span class="photo-tag">FIELD NOTE — 숲의 하루</span>
+        </div>
+      </div>
+
+      <div class="about-content reveal">
+        <p class="section-label">OUR PHILOSOPHY</p>
+        <h2 class="section-title">숲은 놀이터이면서<br>동시에 인생학교입니다.</h2>
+        <p class="about-lead">
+          숲은 아이가 스스로 배우고, 도전하고, 감사하며 성장하는 가장 큰 교실입니다.
+        </p>
+        <p class="about-body">
+          정답을 먼저 알려주기보다, 아이가 직접 걸어보고 찾아보고 실패하며 다시 시도할
+          시간을 줍니다. 작은 곤충 한 마리에서 질문이 시작되고, 친구와 함께 미션을
+          풀며 협력과 배려를 배우고, 계절마다 달라지는 자연 앞에서 생명을 존중하는
+          법을 익힙니다.
+        </p>
+
+        <ul class="about-tags">
+          <li>자연</li>
+          <li>가족</li>
+          <li>모험</li>
+          <li>성장</li>
+          <li>감사</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PRINCIPLES (구 Features, 5원칙) ================= -->
+  <section class="section principles" id="principles">
+    <div class="container">
+      <p class="section-label">HOW WE TEACH</p>
+      <h2 class="section-title">털보쌤의 5가지 교육 원칙</h2>
+      <p class="section-desc">설명보다 먼저 경험하고, 그 경험은 다시 성장으로 이어집니다.</p>
+
+      <ol class="principle-trail">
+        <li class="principle-step reveal">
+          <span class="principle-marker">01</span>
+          <div class="principle-body">
+            <div class="principle-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="12" r="5" stroke="currentColor" stroke-width="2"/><path d="M24 17v11l-8 12M24 28l8 12M16 22l8-4 8 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <p class="principle-tag">PLAY</p>
+            <h3>먼저 경험합니다</h3>
+            <p>아이가 직접 걷고, 만지고, 뛰고, 놀며 자연과 친해집니다.</p>
+          </div>
+        </li>
+
+        <li class="principle-step reveal">
+          <span class="principle-marker">02</span>
+          <div class="principle-body">
+            <div class="principle-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><circle cx="21" cy="21" r="12" stroke="currentColor" stroke-width="2"/><path d="M30 30 40 40" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <p class="principle-tag">EXPLORE</p>
+            <h3>스스로 발견합니다</h3>
+            <p>숲 미션과 관찰을 통해 정답을 듣기보다 아이가 직접 답을 찾아갑니다.</p>
+          </div>
+        </li>
+
+        <li class="principle-step reveal">
+          <span class="principle-marker">03</span>
+          <div class="principle-body">
+            <div class="principle-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><path d="M18 18c0-5 3-8 7-8s7 3 7 7c0 4-3 5-5 7-1.5 1.5-2 3-2 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="25" cy="37" r="1.8" fill="currentColor"/></svg>
+            </div>
+            <p class="principle-tag">QUESTION</p>
+            <h3>“왜 그럴까?”에서 시작합니다</h3>
+            <p>자연에서 발견한 것을 질문하며 생각을 확장합니다.</p>
+          </div>
+        </li>
+
+        <li class="principle-step reveal">
+          <span class="principle-marker">04</span>
+          <div class="principle-body">
+            <div class="principle-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><circle cx="18" cy="20" r="7" stroke="currentColor" stroke-width="2"/><circle cx="30" cy="20" r="7" stroke="currentColor" stroke-width="2"/><path d="M10 38c1-6 5-9 8-9M38 38c-1-6-5-9-8-9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <p class="principle-tag">TOGETHER</p>
+            <h3>함께 배우고 성장합니다</h3>
+            <p>협력과 배려를 경험하며 친구와 자연을 존중하는 법을 배웁니다.</p>
+          </div>
+        </li>
+
+        <li class="principle-step reveal principle-step--grow">
+          <span class="principle-marker">05</span>
+          <div class="principle-body">
+            <div class="principle-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><path d="M24 40V22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M24 22c0-8-6-12-12-12 0 8 5 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M24 28c0-6 5-9 10-9 0 6-4 9-10 9Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+            </div>
+            <p class="principle-tag">GROW</p>
+            <h3>경험이 성장으로 이어집니다</h3>
+            <p>신체 · 정서 · 사회성 · 인지 · 가치가 함께 성장하도록 설계합니다.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= EDUCATION GOALS (신규) ================= -->
+  <section class="section goals" id="goals">
+    <div class="container">
+      <p class="section-label">WHAT KIDS GAIN</p>
+      <h2 class="section-title">자연에서 자라나는 다섯 가지 성장</h2>
+      <p class="section-desc">몸과 마음, 관계와 생각, 그리고 가치가 함께 자랍니다.</p>
+
+      <div class="goal-grid">
+        <div class="goal-tile reveal">
+          <div class="goal-icon" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M20 13v9l-7 11M20 22l7 11M12 18l8-4 8 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>신체</h3>
+          <p>걷기 · 오르기 · 균형감각 · 대근육 활동</p>
+        </div>
+        <div class="goal-tile reveal">
+          <div class="goal-icon" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M20 33c-8-6-14-11-14-18a8 8 0 0 1 14-5 8 8 0 0 1 14 5c0 7-6 12-14 18Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
+          <h3>정서</h3>
+          <p>자연과 교감 · 안정 · 즐거운 자연 경험</p>
+        </div>
+        <div class="goal-tile reveal">
+          <div class="goal-icon" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><circle cx="15" cy="17" r="6" stroke="currentColor" stroke-width="2"/><circle cx="25" cy="17" r="6" stroke="currentColor" stroke-width="2"/><path d="M8 32c1-5 4-8 7-8M32 32c-1-5-4-8-7-8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <h3>사회성</h3>
+          <p>협력 · 배려 · 의사소통</p>
+        </div>
+        <div class="goal-tile reveal">
+          <div class="goal-icon" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M20 6c-6 0-10 4-10 9 0 4 2 6 4 8 1.5 1.5 2 3 2 5h8c0-2 .5-3.5 2-5 2-2 4-4 4-8 0-5-4-9-10-9Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M17 32h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <h3>인지</h3>
+          <p>관찰 · 질문 · 탐구 · 문제해결</p>
+        </div>
+        <div class="goal-tile reveal goal-tile--value">
+          <div class="goal-icon" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M20 34V17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 17c0-7-5-11-11-11 0 7 4 11 11 11Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M20 22c0-5 4-8 9-8 0 5-4 8-9 8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></div>
+          <h3>가치</h3>
+          <p>감사 · 존중 · 책임 · 생명존중</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GROWTH BY AGE (신규) ================= -->
+  <section class="section growth" id="growth">
+    <div class="container">
+      <p class="section-label">GROWTH BY AGE</p>
+      <h2 class="section-title">느끼기에서 이해하기까지</h2>
+      <p class="section-desc">나이에 따라 자연과 만나는 깊이가 달라집니다.</p>
+
+      <div class="growth-flow">
+        <div class="growth-stage reveal">
+          <span class="growth-age">4–7세</span>
+          <h3>느끼기</h3>
+          <p>오감놀이 · 자연물놀이 · 꽃 · 흙</p>
+        </div>
+        <div class="growth-arrow" aria-hidden="true">→</div>
+        <div class="growth-stage reveal">
+          <span class="growth-age">초등 1–3학년</span>
+          <h3>탐험하기</h3>
+          <p>보물찾기 · 숲미션 · 곤충관찰 · 팀활동</p>
+        </div>
+        <div class="growth-arrow" aria-hidden="true">→</div>
+        <div class="growth-stage reveal">
+          <span class="growth-age">초등 4–6학년</span>
+          <h3>이해하기</h3>
+          <p>생태계 · 자연과학 · 환경교육 · 탐구</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROGRAMS ================= -->
+  <section class="section programs" id="programs">
+    <div class="container">
+      <p class="section-label">PROGRAMS</p>
+      <h2 class="section-title">털보쌤이랑 놀자</h2>
+      <p class="section-desc">유아부터 초등학생까지, 아이의 성장 단계에 맞춘 털보쌤 숲체험의 이름입니다.</p>
+
+      <!--
+        프로그램 확장/수정 안내:
+        - 아래 3개(아침숲 / 낮숲 / 초등숲탐험대)는 현재 실제 운영·사용 이력이
+          확인된 공식 프로그램명입니다. 곤충관찰, 협동 미션, 자연물 놀이 같은
+          세부 활동은 별도 프로그램명을 만들지 말고 각 카드의 설명 문장 안에서
+          활동 요소로만 표현하세요.
+        - 새 프로그램이 확정되면 .program-card 블록 하나를 통째로 복사해
+          붙여넣으면 됩니다. .program-grid는 auto-fit 그리드라 카드 수가
+          늘어나거나 줄어도 별도 CSS 수정 없이 자동으로 줄바꿈됩니다.
+        - 프로그램명이 바뀌면 이 블록과 함께 연락처 폼의 "관심 프로그램" 선택지
+          (아래 CONTACT FORM 섹션의 <select id="program">)도 함께 맞춰주세요.
+      -->
+      <div class="program-grid">
+        <article class="program-card reveal">
+          <div class="program-visual" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><path d="M10 40h44" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M20 40a12 12 0 0 1 24 0" fill="none" stroke="currentColor" stroke-width="3"/><path d="M32 16v6M20 22l4 4M44 22l-4 4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          </div>
+          <h3>아침숲</h3>
+          <p>숲을 처음 만나는 아이들을 위한 자연놀이와 오감 중심 숲체험.</p>
+        </article>
+
+        <article class="program-card reveal">
+          <div class="program-visual" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><circle cx="32" cy="26" r="10" stroke="currentColor" stroke-width="3" fill="none"/><path d="M32 8v6M32 38v6M14 26h6M44 26h6M19 13l4 4M45 13l-4 4M19 39l4-4M45 39l-4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M10 52c6-4 38-4 44 0" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
+          </div>
+          <h3>낮숲</h3>
+          <p>자연을 직접 찾고 관찰하며 놀이와 탐험으로 확장하는 숲체험.</p>
+        </article>
+
+        <article class="program-card reveal">
+          <div class="program-visual" aria-hidden="true">
+            <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22" stroke="currentColor" stroke-width="3" fill="none"/><path d="M40 24 34 34 24 40 30 30Z" fill="currentColor"/><path d="M32 10v6M32 48v6M10 32h6M48 32h6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+          </div>
+          <h3>초등숲탐험대</h3>
+          <p>아이가 탐험대원이 되어 숲을 걷고, 관찰하고, 미션을 수행하는 초등 자연탐험 프로그램.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SEASONS (신규) ================= -->
+  <section class="section seasons" id="seasons">
+    <div class="container">
+      <p class="section-label">FOUR SEASONS</p>
+      <h2 class="section-title">사계절을 따라 이어지는 자연교육</h2>
+      <p class="section-desc">털보쌤은 자연의 계절 변화를 따라 교육하는 장기 커리큘럼을 지향합니다.</p>
+
+      <div class="season-grid">
+        <div class="season-tile reveal">
+          <span class="season-emoji" aria-hidden="true">🌱</span>
+          <p class="season-name">봄</p>
+          <h3>생명의 시작</h3>
+          <p>새싹 · 봄꽃 · 곤충</p>
+        </div>
+        <div class="season-tile reveal">
+          <span class="season-emoji" aria-hidden="true">☀️</span>
+          <p class="season-name">여름</p>
+          <h3>성장</h3>
+          <p>숲 · 계곡 생태 · 여름 곤충</p>
+        </div>
+        <div class="season-tile reveal">
+          <span class="season-emoji" aria-hidden="true">🍂</span>
+          <p class="season-name">가을</p>
+          <h3>열매와 나눔</h3>
+          <p>도토리 · 낙엽 · 씨앗</p>
+        </div>
+        <div class="season-tile reveal">
+          <span class="season-emoji" aria-hidden="true">❄️</span>
+          <p class="season-name">겨울</p>
+          <h3>쉼과 준비</h3>
+          <p>겨울눈 · 동물 흔적 · 겨울새</p>
+        </div>
+      </div>
+
+      <p class="season-chain reveal">
+        자연관찰 <span>→</span> 놀이 <span>→</span> 과학 <span>→</span> 탐험미션 <span>→</span> 가치교육 <span>→</span> 가족연계
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= FIELD NOTE GALLERY ================= -->
+  <section class="section fieldnote" id="fieldnote">
+    <div class="container">
+      <p class="section-label light">FIELD NOTE</p>
+      <h2 class="section-title light">실제 수업 기록</h2>
+      <p class="section-desc light">숫자보다 기록이 더 많은 것을 말해줍니다. 앞으로 계속 쌓여갈 활동 아카이브입니다.</p>
+
+      <div class="note-grid">
+        <figure class="note-card reveal">
+          <div class="note-thumb"><svg viewBox="0 0 64 64"><ellipse cx="32" cy="34" rx="14" ry="18" fill="none" stroke="currentColor" stroke-width="3"/><path d="M32 16v-4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></div>
+          <figcaption><span class="note-date">2025.09</span><span class="note-title">도토리는 왜 모두 다르게 생겼을까?</span></figcaption>
+        </figure>
+        <figure class="note-card reveal">
+          <div class="note-thumb"><svg viewBox="0 0 64 64"><path d="M32 8c10 10 18 20 18 30a18 18 0 1 1-36 0c0-10 8-20 18-30Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M24 40c2 4 6 6 10 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+          <figcaption><span class="note-date">2025.09</span><span class="note-title">잎에서는 정말 물이 나올까?</span></figcaption>
+        </figure>
+        <figure class="note-card reveal">
+          <div class="note-thumb"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="20" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="32" cy="32" r="8" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M32 12v6M32 58v-6M12 32h6M58 32h-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+          <figcaption><span class="note-date">2025.10</span><span class="note-title">현미경으로 본 나뭇잎</span></figcaption>
+        </figure>
+        <figure class="note-card reveal">
+          <div class="note-thumb"><svg viewBox="0 0 64 64"><path d="M14 24 22 18M24 20 30 14M34 22 40 16M44 26 50 20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><rect x="14" y="30" width="36" height="24" rx="4" fill="none" stroke="currentColor" stroke-width="3"/></svg></div>
+          <figcaption><span class="note-date">2025.10</span><span class="note-title">비 오는 날의 실내 자연탐험</span></figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= INSTITUTIONS ================= -->
+  <section class="section institutions" id="institutions">
+    <div class="container inst-inner">
+      <div class="inst-text reveal">
+        <p class="section-label">FOR SCHOOLS &amp; ORGANIZATIONS</p>
+        <h2 class="section-title">기관 출강 안내</h2>
+        <p class="section-desc" style="margin-bottom:0">
+          대상과 교육 목적, 계절, 장소에 맞춰 자연탐험 프로그램을 구성합니다.
+        </p>
+
+        <ul class="inst-list">
+          <li><strong>대상</strong> 유치원 · 학교 · 지역아동센터 · 복지기관 · 교육기관 · 가족 프로그램</li>
+          <li><strong>운영</strong> 원데이 클래스 · 정기 프로그램(초등숲탐험대) · 방학특강 · 기관 맞춤 프로그램</li>
+          <li><strong>장소</strong> 인근 숲 · 공원 현장 수업 또는 기관 방문 실내 수업</li>
+          <li><strong>구성</strong> 커리큘럼 협의 → 사전답사 → 수업 진행 → 관찰 기록 공유</li>
+        </ul>
+
+        <a href="#contact" class="btn btn-primary">출강 문의하기</a>
+      </div>
+
+      <div class="inst-card reveal">
+        <p class="inst-card-label">CURRICULUM SAMPLE</p>
+        <ol class="inst-steps">
+          <li><span>01</span>사전 미팅 &amp; 기관 특성 파악</li>
+          <li><span>02</span>계절 · 연령별 커리큘럼 설계</li>
+          <li><span>03</span>현장 답사 및 안전 점검</li>
+          <li><span>04</span>탐험 수업 진행</li>
+          <li><span>05</span>관찰 기록 &amp; 피드백 공유</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= VOICES ================= -->
+  <section class="section voices" id="voices">
+    <div class="container">
+      <p class="section-label">KIDS' VOICES</p>
+      <h2 class="section-title">아이들의 한마디</h2>
+
+      <div class="voice-grid">
+        <blockquote class="voice-card reveal">
+          <p>“오늘은 선생님이 답을 안 알려줘서 더 좋았어요. 제가 먼저 찾았어요!”</p>
+          <cite>— 초등숲탐험대, 8세</cite>
+        </blockquote>
+        <blockquote class="voice-card reveal">
+          <p>“사슴벌레를 처음으로 손에 올려봤어요. 하나도 안 무서웠어요.”</p>
+          <cite>— 초등숲탐험대, 9세</cite>
+        </blockquote>
+        <blockquote class="voice-card reveal">
+          <p>“쓰레기를 주우면서 우리 동네 개울이 더 깨끗해지는 걸 봤어요.”</p>
+          <cite>— 초등숲탐험대, 10세</cite>
+        </blockquote>
+        <blockquote class="voice-card reveal">
+          <p>“내 관찰 노트에 그림이 제일 많아서 자랑하고 싶어요.”</p>
+          <cite>— 초등숲탐험대, 11세</cite>
+        </blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONTACT FORM ================= -->
+  <section class="section contact" id="contact">
+    <div class="container contact-inner">
+      <div class="contact-text reveal">
+        <p class="section-label">GET IN TOUCH</p>
+        <h2 class="section-title">수업 문의</h2>
+        <p class="section-desc">
+          개인 신청, 기관 출강, 협업 제안 모두 환영합니다.<br>
+          아래 양식을 남겨주시면 순차적으로 연락드립니다.
+        </p>
+        <ul class="contact-info">
+          <li><strong>Email</strong> hello@teolbossam.com</li>
+          <li><strong>Instagram</strong> @teolbossam</li>
+          <li><strong>운영 시간</strong> 평일 09:00 – 18:00</li>
+        </ul>
+      </div>
+
+      <!--
+        문의 폼: 현재는 mailto: 방식으로 즉시 전송됩니다.
+        추후 Formspree/서버 API로 교체 시 이 <form>의 action/method와
+        js/main.js의 제출 핸들러(FIELD_LABELS 부분)만 바꾸면 됩니다.
+      -->
+      <form class="contact-form reveal" id="contactForm" novalidate>
+        <div class="form-row">
+          <label for="name">담당자명 <span aria-hidden="true">*</span></label>
+          <input type="text" id="name" name="name" required autocomplete="name" placeholder="홍길동">
+        </div>
+
+        <div class="form-row">
+          <label for="phone">연락처 <span aria-hidden="true">*</span></label>
+          <input type="tel" id="phone" name="phone" required autocomplete="tel" placeholder="010-0000-0000">
+        </div>
+
+        <div class="form-row">
+          <label for="organization">기관명</label>
+          <input type="text" id="organization" name="organization" autocomplete="organization" placeholder="예: OO초등학교 (개인 신청 시 비워두세요)">
+        </div>
+
+        <div class="form-row">
+          <label for="email">이메일</label>
+          <input type="email" id="email" name="email" autocomplete="email" placeholder="example@email.com">
+        </div>
+
+        <div class="form-row">
+          <label for="type">문의 유형 <span aria-hidden="true">*</span></label>
+          <select id="type" name="type" required>
+            <option value="">선택해주세요</option>
+            <option value="individual">개인 수업 신청</option>
+            <option value="institution">기관 출강 문의</option>
+            <option value="partnership">협업 · 제휴 제안</option>
+            <option value="etc">기타</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="audience">참여 대상 <span aria-hidden="true">*</span></label>
+          <select id="audience" name="audience" required>
+            <option value="">선택해주세요</option>
+            <option value="toddler">유아 (4~7세)</option>
+            <option value="lower">초등 저학년 (1~3학년)</option>
+            <option value="upper">초등 고학년 (4~6학년)</option>
+            <option value="group">기관 단체</option>
+            <option value="family">가족 프로그램</option>
+            <option value="etc">기타</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label for="headcount">예상 인원</label>
+          <input type="number" id="headcount" name="headcount" min="1" placeholder="예: 15">
+        </div>
+
+        <div class="form-row">
+          <label for="region">희망 지역</label>
+          <input type="text" id="region" name="region" placeholder="예: 서울 은평구">
+        </div>
+
+        <div class="form-row">
+          <label for="date">희망 날짜</label>
+          <input type="date" id="date" name="date">
+        </div>
+
+        <div class="form-row">
+          <label for="program">관심 프로그램</label>
+          <select id="program" name="program">
+            <option value="">선택해주세요</option>
+            <option value="morning">아침숲</option>
+            <option value="noon">낮숲</option>
+            <option value="expedition">초등숲탐험대</option>
+            <option value="undecided">아직 미정이에요</option>
+            <option value="etc">기타</option>
+          </select>
+        </div>
+
+        <div class="form-row form-row-full">
+          <label for="message">문의 내용 <span aria-hidden="true">*</span></label>
+          <textarea id="message" name="message" rows="5" required placeholder="아이 연령, 희망 프로그램, 기관명 등을 함께 남겨주시면 더 빠르게 안내드릴 수 있어요."></textarea>
+        </div>
+
+        <div class="form-row form-row-full form-submit">
+          <button type="submit" class="btn btn-primary btn-block">문의 보내기</button>
+          <p class="form-note" id="formNote" role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ================= FINAL CTA ================= -->
+  <section class="section final-cta">
+    <div class="container final-cta-inner reveal">
+      <p class="eyebrow">READY FOR THE FIELD?</p>
+      <h2>지금, 아이와 함께<br>자연을 만나러 오세요.</h2>
+      <a href="#contact" class="btn btn-cream">수업 문의하기</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand brand-slot" data-brand-slot>
+      <img data-brand-asset src="assets/brand/brand-emblem.svg" alt="털보쌤 — LEARN · EXPLORE · GROW">
+      <div class="brand-fallback">
+        <span class="brand-text">털보쌤<em>TEOLBOSSAM</em></span>
+        <p>어린이 자연탐험 교육 브랜드</p>
+        <p class="footer-tagline">LEARN · EXPLORE · GROW</p>
+      </div>
+    </div>
+    <div class="footer-links">
+      <a href="#principles">교육방법</a>
+      <a href="#programs">프로그램</a>
+      <a href="#institutions">기관 출강</a>
+      <a href="#contact">문의</a>
+    </div>
+    <p class="footer-copy">© 2026 TEOLBOSSAM. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
