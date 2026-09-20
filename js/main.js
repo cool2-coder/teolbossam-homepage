@@ -111,10 +111,9 @@
     etc: '기타',
   };
   const PROGRAM_LABELS = {
-    forest: '숲 탐험대',
-    insect: '곤충 탐험대',
-    eco: '환경특공대',
-    lab: '자연 탐구교실',
+    morning: '아침숲',
+    noon: '낮숲',
+    expedition: '초등숲탐험대',
     undecided: '아직 미정이에요',
     etc: '기타',
   };

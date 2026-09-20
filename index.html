@@ -284,50 +284,44 @@
   <section class="section programs" id="programs">
     <div class="container">
       <p class="section-label">PROGRAMS</p>
-      <h2 class="section-title">프로그램</h2>
-      <p class="section-desc">연령과 계절, 관심사에 따라 갈래를 나눈 탐험 프로그램입니다.</p>
+      <h2 class="section-title">털보쌤이랑 놀자</h2>
+      <p class="section-desc">유아부터 초등학생까지, 아이의 성장 단계에 맞춘 털보쌤 숲체험의 이름입니다.</p>
 
       <!--
-        프로그램 확장 안내: 새 프로그램을 추가하려면 아래 .program-card
-        블록 하나를 통째로 복사해 원하는 위치에 붙여넣으세요.
-        .program-grid는 auto-fit 그리드라 카드 수가 늘어나도
-        별도 CSS 수정 없이 자동으로 줄바꿈됩니다.
+        프로그램 확장/수정 안내:
+        - 아래 3개(아침숲 / 낮숲 / 초등숲탐험대)는 현재 실제 운영·사용 이력이
+          확인된 공식 프로그램명입니다. 곤충관찰, 협동 미션, 자연물 놀이 같은
+          세부 활동은 별도 프로그램명을 만들지 말고 각 카드의 설명 문장 안에서
+          활동 요소로만 표현하세요.
+        - 새 프로그램이 확정되면 .program-card 블록 하나를 통째로 복사해
+          붙여넣으면 됩니다. .program-grid는 auto-fit 그리드라 카드 수가
+          늘어나거나 줄어도 별도 CSS 수정 없이 자동으로 줄바꿈됩니다.
+        - 프로그램명이 바뀌면 이 블록과 함께 연락처 폼의 "관심 프로그램" 선택지
+          (아래 CONTACT FORM 섹션의 <select id="program">)도 함께 맞춰주세요.
       -->
       <div class="program-grid">
         <article class="program-card reveal">
           <div class="program-visual" aria-hidden="true">
-            <svg viewBox="0 0 64 64"><path d="M32 6 46 30H18Z" fill="currentColor" opacity=".9"/><path d="M32 20 48 46H16Z" fill="currentColor" opacity=".6"/><rect x="29" y="46" width="6" height="12" fill="currentColor"/></svg>
+            <svg viewBox="0 0 64 64"><path d="M10 40h44" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M20 40a12 12 0 0 1 24 0" fill="none" stroke="currentColor" stroke-width="3"/><path d="M32 16v6M20 22l4 4M44 22l-4 4" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
           </div>
-          <h3>숲 탐험대</h3>
-          <p class="program-tag">FOREST EXPEDITION</p>
-          <p>계절마다 달라지는 숲을 직접 걸으며 식물과 자연의 변화를 발견합니다.</p>
+          <h3>아침숲</h3>
+          <p>숲을 처음 만나는 아이들을 위한 자연놀이와 오감 중심 숲체험.</p>
         </article>
 
         <article class="program-card reveal">
           <div class="program-visual" aria-hidden="true">
-            <svg viewBox="0 0 64 64"><ellipse cx="32" cy="34" rx="14" ry="18" fill="currentColor" opacity=".85"/><path d="M20 24 8 14M44 24 56 14M18 44 6 52M46 44 58 52" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+            <svg viewBox="0 0 64 64"><circle cx="32" cy="26" r="10" stroke="currentColor" stroke-width="3" fill="none"/><path d="M32 8v6M32 38v6M14 26h6M44 26h6M19 13l4 4M45 13l-4 4M19 39l4-4M45 39l-4-4" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M10 52c6-4 38-4 44 0" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
           </div>
-          <h3>곤충 탐험대</h3>
-          <p class="program-tag">INSECT EXPEDITION</p>
-          <p>곤충을 직접 관찰하며 생김새, 움직임, 살아가는 방식을 탐구합니다.</p>
+          <h3>낮숲</h3>
+          <p>자연을 직접 찾고 관찰하며 놀이와 탐험으로 확장하는 숲체험.</p>
         </article>
 
         <article class="program-card reveal">
           <div class="program-visual" aria-hidden="true">
-            <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22" fill="none" stroke="currentColor" stroke-width="3"/><path d="M32 12v40M12 32h40" stroke="currentColor" stroke-width="2" opacity=".5"/><path d="M22 22c6 6 14 6 20 0" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+            <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="22" stroke="currentColor" stroke-width="3" fill="none"/><path d="M40 24 34 34 24 40 30 30Z" fill="currentColor"/><path d="M32 10v6M32 48v6M10 32h6M48 32h6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
           </div>
-          <h3>환경특공대</h3>
-          <p class="program-tag">ECO RANGERS</p>
-          <p>게임, 관찰, 미션을 통해 생태 · 물 · 에너지 · 자원순환을 경험하는 환경교육 프로그램입니다.</p>
-        </article>
-
-        <article class="program-card reveal">
-          <div class="program-visual" aria-hidden="true">
-            <svg viewBox="0 0 64 64"><rect x="12" y="14" width="40" height="36" rx="3" fill="none" stroke="currentColor" stroke-width="3"/><path d="M20 26h24M20 34h24M20 42h16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-          </div>
-          <h3>자연 탐구교실</h3>
-          <p class="program-tag">NATURE LAB</p>
-          <p>루페, 관찰도구, 디지털 현미경 등을 활용해 눈으로 쉽게 볼 수 없는 자연을 탐구합니다.</p>
+          <h3>초등숲탐험대</h3>
+          <p>아이가 탐험대원이 되어 숲을 걷고, 관찰하고, 미션을 수행하는 초등 자연탐험 프로그램.</p>
         </article>
       </div>
     </div>
@@ -413,7 +407,7 @@
 
         <ul class="inst-list">
           <li><strong>대상</strong> 유치원 · 학교 · 지역아동센터 · 복지기관 · 교육기관 · 가족 프로그램</li>
-          <li><strong>운영</strong> 원데이 클래스 · 정기 프로그램(숲탐험대) · 방학특강 · 기관 맞춤 프로그램</li>
+          <li><strong>운영</strong> 원데이 클래스 · 정기 프로그램(초등숲탐험대) · 방학특강 · 기관 맞춤 프로그램</li>
           <li><strong>장소</strong> 인근 숲 · 공원 현장 수업 또는 기관 방문 실내 수업</li>
           <li><strong>구성</strong> 커리큘럼 협의 → 사전답사 → 수업 진행 → 관찰 기록 공유</li>
         </ul>
@@ -443,19 +437,19 @@
       <div class="voice-grid">
         <blockquote class="voice-card reveal">
           <p>“오늘은 선생님이 답을 안 알려줘서 더 좋았어요. 제가 먼저 찾았어요!”</p>
-          <cite>— 숲 탐험대, 8세</cite>
+          <cite>— 초등숲탐험대, 8세</cite>
         </blockquote>
         <blockquote class="voice-card reveal">
           <p>“사슴벌레를 처음으로 손에 올려봤어요. 하나도 안 무서웠어요.”</p>
-          <cite>— 곤충 탐험대, 9세</cite>
+          <cite>— 초등숲탐험대, 9세</cite>
         </blockquote>
         <blockquote class="voice-card reveal">
           <p>“쓰레기를 주우면서 우리 동네 개울이 더 깨끗해지는 걸 봤어요.”</p>
-          <cite>— 환경특공대, 10세</cite>
+          <cite>— 초등숲탐험대, 10세</cite>
         </blockquote>
         <blockquote class="voice-card reveal">
           <p>“내 관찰 노트에 그림이 제일 많아서 자랑하고 싶어요.”</p>
-          <cite>— 자연 탐구교실, 11세</cite>
+          <cite>— 초등숲탐험대, 11세</cite>
         </blockquote>
       </div>
     </div>
@@ -547,10 +541,9 @@
           <label for="program">관심 프로그램</label>
           <select id="program" name="program">
             <option value="">선택해주세요</option>
-            <option value="forest">숲 탐험대</option>
-            <option value="insect">곤충 탐험대</option>
-            <option value="eco">환경특공대</option>
-            <option value="lab">자연 탐구교실</option>
+            <option value="morning">아침숲</option>
+            <option value="noon">낮숲</option>
+            <option value="expedition">초등숲탐험대</option>
             <option value="undecided">아직 미정이에요</option>
             <option value="etc">기타</option>
           </select>

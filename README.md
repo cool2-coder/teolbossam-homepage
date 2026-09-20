@@ -35,7 +35,7 @@ python3 -m http.server 8080
 3. 교육방법 (Principles) — PLAY / EXPLORE / QUESTION / TOGETHER / GROW 5원칙
 4. 교육목표 (Goals) — 신체 · 정서 · 사회성 · 인지 · 가치
 5. 연령별 교육과정 (Growth) — 느끼기 → 탐험하기 → 이해하기
-6. 프로그램 (Programs) — 숲 탐험대 / 곤충 탐험대 / 환경특공대 / 자연 탐구교실
+6. 프로그램 (Programs) — 털보쌤이랑 놀자: 아침숲 / 낮숲 / 초등숲탐험대
 7. 사계절 교육 (Seasons) — 봄 · 여름 · 가을 · 겨울 티저
 8. FIELD NOTE — 실제 수업 기록 아카이브
 9. 기관 출강 안내 (Institutions)
@@ -50,10 +50,17 @@ python3 -m http.server 8080
 않고 텍스트 워드마크를 안전한 폴백으로 사용하고 있습니다. 정확한 파일 경로와 자동 교체
 동작 방식은 [`assets/brand/README.md`](assets/brand/README.md)에 정리되어 있습니다.
 
-## 프로그램 추가하기
+## 프로그램 추가/수정하기
 
-`index.html`의 `.program-grid` 안 `.program-card` 블록 하나를 복사해 붙여넣으면 됩니다.
-그리드가 `auto-fit`이라 카드 수가 늘어나도 CSS를 수정할 필요가 없습니다.
+현재 프로그램명(아침숲 / 낮숲 / 초등숲탐험대)은 실제 운영·사용 이력이 확인된
+공식 명칭입니다. 곤충관찰, 협동 미션, 자연물 놀이 같은 세부 활동은 별도
+프로그램명으로 만들지 말고 각 카드 설명 문장 안의 활동 요소로만 표현하세요.
+
+새 프로그램이 확정되면 `index.html`의 `.program-grid` 안 `.program-card` 블록
+하나를 복사해 붙여넣으면 됩니다. 그리드가 `auto-fit`이라 카드 수가 늘어나거나
+줄어도 CSS를 수정할 필요가 없습니다. 프로그램명이 바뀌면 문의 폼의
+"관심 프로그램" `<select>`(`index.html`)와 `js/main.js`의 `PROGRAM_LABELS`도
+함께 맞춰주세요.
 
 ## 문의 폼
 
