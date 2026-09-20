@@ -43,6 +43,19 @@ python3 -m http.server 8080
 
 ## 디자인 컨셉
 
-어린이 자연탐험대 + 필드노트 + 자연도감을 모티프로, 아이보리 배경에 짙은 숲 카키·브라운을
-기본 톤으로 하고 머스터드·오렌지를 포인트 컬러로 사용했습니다. 컬러 값은
-`css/style.css`의 `:root` 변수에서 한 번에 관리합니다.
+어린이 자연탐험대 + 필드노트 + 자연도감을 모티프로 하며, 털보쌤 공식 BI 컬러를 그대로
+디자인 토큰화했습니다. 모든 컬러는 `css/style.css`의 `:root` 변수에서 한 번에 관리하므로,
+BI가 업데이트되면 이 값들만 바꾸면 됩니다.
+
+| 토큰 | 값 | 용도 · 사용 비율 |
+| --- | --- | --- |
+| `--color-cream` | `#F6F3EB` | Warm Cream Background — 배경 (~65%) |
+| `--color-brown` | `#8E7243` | Primary Brand Brown — 본문 강조, 버튼, 아이콘 (~25%) |
+| `--color-beige` | `#DDD5BE` | Soft Beige — 태그/칩 배경 (~7%) |
+| `--color-sand` | `#BAAF95` | Sand Beige — 테두리, 보조 뉴트럴 |
+| `--color-green` | `#96C565` | Sprout Green — 아이콘·라벨·hover 등 작은 포인트 전용 (~3%) |
+| `--color-ink` | `#332D24` | Deep Brown Text — 본문 텍스트 + 다크 섹션 배경 |
+
+브랜드 영문 슬로건 **LEARN · EXPLORE · GROW**는 Hero의 스탬프형 배지와 푸터에 공식
+tagline으로 노출됩니다. 연두색(Sprout Green)은 큰 면적의 CTA를 채우는 용도가 아니라
+아이콘, 라벨, hover 강조, 상태 텍스트 등 "새싹처럼 작은 포인트"로만 제한적으로 사용합니다.
