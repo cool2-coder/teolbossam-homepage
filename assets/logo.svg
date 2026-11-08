@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="털보쌤 로고">
+  <circle cx="60" cy="60" r="58" fill="#FFF4E0"/>
+  <!-- hair -->
+  <path d="M28 52c0-20 14-34 32-34s32 14 32 34c-6-8-14-12-22-12H50c-8 0-16 4-22 12z" fill="#3B2A20"/>
+  <!-- face -->
+  <ellipse cx="60" cy="58" rx="26" ry="24" fill="#F6C99B"/>
+  <!-- glasses -->
+  <circle cx="49" cy="55" r="7" fill="none" stroke="#3B2A20" stroke-width="3"/>
+  <circle cx="71" cy="55" r="7" fill="none" stroke="#3B2A20" stroke-width="3"/>
+  <path d="M56 55h8" stroke="#3B2A20" stroke-width="3"/>
+  <circle cx="49" cy="55" r="2" fill="#3B2A20"/>
+  <circle cx="71" cy="55" r="2" fill="#3B2A20"/>
+  <!-- beard -->
+  <path d="M32 62c2 22 14 38 28 38s26-16 28-38c-4 6-10 8-16 8-4 0-8-4-12-4s-8 4-12 4c-6 0-12-2-16-8z" fill="#3B2A20"/>
+  <!-- smile -->
+  <path d="M52 72c4 4 12 4 16 0" stroke="#F6C99B" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>
