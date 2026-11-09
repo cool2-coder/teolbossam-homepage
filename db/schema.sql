@@ -1,0 +1,86 @@
+create extension if not exists pgcrypto;
+
+create table if not exists kids (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  guardian_label text not null default '어머님',
+  phone text not null default '',
+  code text not null unique,
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists weeks (
+  id uuid primary key default gen_random_uuid(),
+  season text not null,
+  number int not null,
+  class_date date not null,
+  place text not null default '',
+  topic text not null,
+  mission text not null default '',
+  published_at timestamptz,
+  reminded_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists entries (
+  week_id uuid not null references weeks(id) on delete cascade,
+  kid_id uuid not null references kids(id) on delete cascade,
+  attended boolean not null default true,
+  note text not null default '',
+  powers text[] not null default '{}',
+  updated_at timestamptz not null default now(),
+  primary key (week_id, kid_id)
+);
+
+create table if not exists replies (
+  id uuid primary key default gen_random_uuid(),
+  week_id uuid not null references weeks(id) on delete cascade,
+  kid_id uuid not null references kids(id) on delete cascade,
+  body text not null,
+  created_at timestamptz not null default now(),
+  unique (week_id, kid_id)
+);
+
+create table if not exists photos (
+  id uuid primary key default gen_random_uuid(),
+  week_id uuid references weeks(id) on delete cascade,
+  reply_id uuid references replies(id) on delete cascade,
+  mime text not null,
+  data bytea not null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists photo_tags (
+  photo_id uuid not null references photos(id) on delete cascade,
+  kid_id uuid not null references kids(id) on delete cascade,
+  primary key (photo_id, kid_id)
+);
+
+create table if not exists messages (
+  id bigserial primary key,
+  kid_id uuid references kids(id) on delete set null,
+  week_id uuid references weeks(id) on delete set null,
+  kind text not null,
+  to_phone text not null,
+  body text not null,
+  status text not null,
+  error text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists settings (
+  key text primary key,
+  value text not null
+);
+
+insert into settings (key, value) values
+  ('season', '시즌2'),
+  ('season_weeks', '10'),
+  ('remind_enabled', 'true'),
+  ('remind_weekday', '4')
+on conflict (key) do nothing;
+
+create index if not exists photos_week_idx on photos(week_id);
+create index if not exists photos_reply_idx on photos(reply_id);
+create index if not exists messages_created_idx on messages(created_at desc);

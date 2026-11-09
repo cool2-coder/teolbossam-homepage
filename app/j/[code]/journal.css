@@ -1,0 +1,18 @@
+.journal .jhead { background: var(--pine); color: var(--pine-ink); padding: max(22px, calc(env(safe-area-inset-top) + 12px)) 20px 20px; display: flex; flex-direction: column; gap: 6px; }
+.journal .jhead small { font-size: 12px; opacity: .85; letter-spacing: .04em; }
+.journal .jhead h1 { font-size: 26px; }
+.journal .streak { display: flex; align-items: center; gap: 10px; font-size: 12.5px; flex-wrap: wrap; }
+.journal .dots { display: flex; gap: 4px; flex-wrap: wrap; }
+.journal .dots i { width: 10px; height: 10px; border-radius: 50%; background: color-mix(in srgb, var(--pine-ink) 28%, transparent); }
+.journal .dots i.on { background: var(--acorn); }
+.journal .entry { display: flex; flex-direction: column; gap: 12px; }
+.journal .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; color: var(--muted); }
+.journal .meta b { color: var(--pine); }
+.journal .topic { font-size: 22px; }
+.journal .reply p { margin: 0; white-space: pre-line; }
+.journal .replyimg { border-radius: 10px; max-height: 260px; width: auto; }
+.journal details summary { cursor: pointer; }
+.journal details.past { border-top: 1px solid var(--line); padding: 12px 0; }
+.journal details.past > summary { display: flex; justify-content: space-between; gap: 8px; align-items: center; list-style: none; font-size: 14.5px; }
+.journal details.past > summary::-webkit-details-marker { display: none; }
+.journal details.past[open] > summary { margin-bottom: 14px; }

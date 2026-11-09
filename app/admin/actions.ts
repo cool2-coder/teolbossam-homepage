@@ -1,0 +1,116 @@
+"use server";
+
+import crypto from "node:crypto";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { sql, getSettings, setSetting } from "@/lib/db";
+import { requireAdmin, ADMIN_COOKIE } from "@/lib/auth";
+import { publishWeek, remindWeek } from "@/lib/notify";
+import { POWERS } from "@/lib/brand";
+
+const str = (f: FormData, k: string, max = 2000) => String(f.get(k) ?? "").trim().slice(0, max);
+
+export async function logout() {
+  (await cookies()).delete(ADMIN_COOKIE);
+  redirect("/admin/login");
+}
+
+/* 아이 명단 */
+export async function addKid(form: FormData) {
+  await requireAdmin();
+  const name = str(form, "name", 30);
+  if (!name) return;
+  const code = crypto.randomBytes(6).toString("base64url");
+  const [kid] = await sql<{ id: string }[]>`insert into kids (name, guardian_label, phone, code)
+    values (${name}, ${str(form, "guardian_label", 10) || "어머님"}, ${str(form, "phone", 20)}, ${code}) returning id`;
+  // Add to unpublished weeks so the new kid shows up in this week's class.
+  await sql`insert into entries (week_id, kid_id) select id, ${kid.id} from weeks where published_at is null
+    on conflict do nothing`;
+  revalidatePath("/admin/kids");
+}
+
+export async function updateKid(id: string, form: FormData) {
+  await requireAdmin();
+  await sql`update kids set name = ${str(form, "name", 30)}, guardian_label = ${str(form, "guardian_label", 10) || "어머님"},
+    phone = ${str(form, "phone", 20)} where id = ${id}`;
+  revalidatePath("/admin/kids");
+}
+
+export async function setKidActive(id: string, active: boolean) {
+  await requireAdmin();
+  await sql`update kids set active = ${active} where id = ${id}`;
+  revalidatePath("/admin/kids");
+}
+
+/* 주차 */
+export async function createWeek(form: FormData) {
+  await requireAdmin();
+  const s = await getSettings();
+  const [w] = await sql<{ id: string }[]>`insert into weeks (season, number, class_date, place, topic, mission)
+    values (${s.season}, ${Number(form.get("number")) || 1}, ${str(form, "class_date", 10)}, ${str(form, "place", 60)},
+            ${str(form, "topic", 120) || "오늘의 숲"}, ${str(form, "mission")}) returning id`;
+  await sql`insert into entries (week_id, kid_id) select ${w.id}, id from kids where active`;
+  redirect(`/admin/weeks/${w.id}`);
+}
+
+export async function updateWeek(id: string, form: FormData) {
+  await requireAdmin();
+  await sql`update weeks set number = ${Number(form.get("number")) || 1}, class_date = ${str(form, "class_date", 10)},
+    place = ${str(form, "place", 60)}, topic = ${str(form, "topic", 120)}, mission = ${str(form, "mission")} where id = ${id}`;
+  redirect(`/admin/weeks/${id}`);
+}
+
+export async function deleteWeek(id: string) {
+  await requireAdmin();
+  await sql`delete from weeks where id = ${id}`;
+  redirect("/admin");
+}
+
+export async function saveEntry(weekId: string, kidId: string, nextKidId: string | null, form: FormData) {
+  await requireAdmin();
+  const powers = form.getAll("powers").map(String).filter((p) => POWERS.some((x) => x.name === p));
+  await sql`insert into entries (week_id, kid_id, attended, note, powers)
+    values (${weekId}, ${kidId}, ${form.get("attended") === "on"}, ${str(form, "note")}, ${powers})
+    on conflict (week_id, kid_id) do update set attended = excluded.attended, note = excluded.note,
+      powers = excluded.powers, updated_at = now()`;
+  revalidatePath(`/admin/weeks/${weekId}`);
+  redirect(nextKidId ? `/admin/weeks/${weekId}/k/${nextKidId}` : `/admin/weeks/${weekId}`);
+}
+
+/* 사진 */
+export async function setPhotoTag(photoId: string, kidId: string, on: boolean) {
+  await requireAdmin();
+  if (on) await sql`insert into photo_tags (photo_id, kid_id) values (${photoId}, ${kidId}) on conflict do nothing`;
+  else await sql`delete from photo_tags where photo_id = ${photoId} and kid_id = ${kidId}`;
+}
+
+export async function deletePhoto(photoId: string) {
+  await requireAdmin();
+  await sql`delete from photos where id = ${photoId}`;
+}
+
+/* 문자 */
+export async function publish(weekId: string) {
+  await requireAdmin();
+  const n = await publishWeek(weekId);
+  redirect(`/admin/weeks/${weekId}?sent=${n}`);
+}
+
+export async function remindNow(weekId: string) {
+  await requireAdmin();
+  const n = await remindWeek(weekId);
+  redirect(`/admin/weeks/${weekId}?reminded=${n}`);
+}
+
+/* 설정 */
+export async function saveSettings(form: FormData) {
+  await requireAdmin();
+  await setSetting("remind_enabled", form.get("remind_enabled") === "on" ? "true" : "false");
+  await setSetting("remind_weekday", String(Math.min(6, Math.max(0, Number(form.get("remind_weekday")) || 0))));
+  const season = str(form, "season", 30);
+  if (season) await setSetting("season", season);
+  const weeks = Number(form.get("season_weeks"));
+  if (weeks > 0 && weeks < 60) await setSetting("season_weeks", String(weeks));
+  redirect("/admin/settings?saved=1");
+}
