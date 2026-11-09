@@ -1,5 +1,5 @@
 import { sql, type Kid } from "@/lib/db";
-import { siteUrl } from "@/lib/brand";
+import { siteUrl, CLASS_KINDS } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
 import CopyButton from "@/components/CopyButton";
 import { addKid, updateKid, setKidActive } from "../actions";
@@ -23,6 +23,16 @@ function KidFields({ kid }: { kid?: Kid }) {
       <div className="field">
         <label className="l" htmlFor={`phone-${p}`}>문자 받을 번호</label>
         <input id={`phone-${p}`} name="phone" type="tel" inputMode="tel" defaultValue={kid?.phone} placeholder="010-0000-0000" />
+      </div>
+      <div className="field">
+        <span className="l">듣는 수업</span>
+        <div className="toggles">
+          {Object.entries(CLASS_KINDS).map(([k, v]) => (
+            <label key={k} data-kind={k}>
+              <input type="checkbox" name="classes" value={k} defaultChecked={kid ? kid.classes.includes(k) : true} /> {v.icon} {v.label}
+            </label>
+          ))}
+        </div>
       </div>
     </>
   );
@@ -50,7 +60,11 @@ export default async function Kids() {
             <li key={k.id}>
               <details>
                 <summary className="item">
-                  <span><b>{k.name}</b> <span className="muted small">{k.guardian_label} · {k.phone || "번호 없음"}</span></span>
+                  <span><b>{k.name}</b>{" "}
+                    {k.classes.map((c) => (
+                      <span key={c} data-kind={c} className="kchip" style={{ marginRight: 4 }}>{CLASS_KINDS[c as keyof typeof CLASS_KINDS]?.label ?? c}</span>
+                    ))}
+                    <span className="muted small">{k.phone || "번호 없음"}</span></span>
                   <span className="muted">›</span>
                 </summary>
                 <div className="stack" style={{ paddingBottom: 14 }}>

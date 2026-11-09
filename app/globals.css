@@ -155,3 +155,4 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
 .kcard .kbody .bar i { background: var(--k); }
 .kcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .kband { height: 6px; background: var(--k); }
+.toggles label[data-kind]:has(input:checked) { background: var(--k); border-color: var(--k); }

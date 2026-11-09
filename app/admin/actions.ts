@@ -4,12 +4,16 @@ import crypto from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { sql, getSettings, setSetting, type Week } from "@/lib/db";
+import { sql, getSettings, setSetting, isUuid, type Week } from "@/lib/db";
 import { requireAdmin, ADMIN_COOKIE } from "@/lib/auth";
 import { publishWeek, remindWeek, noticeWeek, publishText, remindText, noticeText } from "@/lib/notify";
 import { POWERS, kindOf } from "@/lib/brand";
 
 const str = (f: FormData, k: string, max = 2000) => String(f.get(k) ?? "").trim().slice(0, max);
+const classesOf = (f: FormData) => {
+  const c = f.getAll("classes").map(String).filter((x) => x === "morning" || x === "indoor");
+  return c.length ? c : ["morning", "indoor"];
+};
 
 export async function logout() {
   (await cookies()).delete(ADMIN_COOKIE);
@@ -22,18 +26,19 @@ export async function addKid(form: FormData) {
   const name = str(form, "name", 30);
   if (!name) return;
   const code = crypto.randomBytes(6).toString("base64url");
-  const [kid] = await sql<{ id: string }[]>`insert into kids (name, guardian_label, phone, code)
-    values (${name}, ${str(form, "guardian_label", 10) || "어머님"}, ${str(form, "phone", 20)}, ${code}) returning id`;
-  // Add to unpublished weeks so the new kid shows up in this week's class.
-  await sql`insert into entries (week_id, kid_id) select id, ${kid.id} from weeks where published_at is null
-    on conflict do nothing`;
+  const classes = classesOf(form);
+  const [kid] = await sql<{ id: string }[]>`insert into kids (name, guardian_label, phone, code, classes)
+    values (${name}, ${str(form, "guardian_label", 10) || "어머님"}, ${str(form, "phone", 20)}, ${code}, ${classes}) returning id`;
+  // Add to this kid's upcoming classes.
+  await sql`insert into entries (week_id, kid_id) select id, ${kid.id} from weeks
+    where published_at is null and kind = any(${classes}) on conflict do nothing`;
   revalidatePath("/admin/kids");
 }
 
 export async function updateKid(id: string, form: FormData) {
   await requireAdmin();
   await sql`update kids set name = ${str(form, "name", 30)}, guardian_label = ${str(form, "guardian_label", 10) || "어머님"},
-    phone = ${str(form, "phone", 20)} where id = ${id}`;
+    phone = ${str(form, "phone", 20)}, classes = ${classesOf(form)} where id = ${id}`;
   revalidatePath("/admin/kids");
 }
 
@@ -51,7 +56,8 @@ export async function createWeek(form: FormData) {
     values (${s.season}, (select coalesce(max(number), 0) + 1 from weeks), ${kindOf(str(form, "kind", 10))}, ${str(form, "class_date", 10)},
             ${str(form, "topic", 120) || "오늘의 숲"}, ${str(form, "body", 30000)})
     returning id`;
-  await sql`insert into entries (week_id, kid_id) select ${w.id}, id from kids where active`;
+  await sql`insert into entries (week_id, kid_id) select ${w.id}, id from kids
+    where active and ${kindOf(str(form, "kind", 10))} = any(classes)`;
   redirect(`/admin/weeks/${w.id}`);
 }
 
@@ -152,4 +158,18 @@ export async function setRsvpByTeacher(weekId: string, kidId: string, value: "ye
   await sql`update entries set rsvp = ${value}, attended = ${value !== "no"}, updated_at = now()
     where week_id = ${weekId} and kid_id = ${kidId}`;
   revalidatePath(`/admin/weeks/${weekId}`);
+}
+
+/** Choose which kids belong to this class (who gets the notice and the journal). */
+export async function setWeekKids(weekId: string, form: FormData) {
+  await requireAdmin();
+  const ids = form.getAll("kid").map(String).filter(isUuid);
+  if (ids.length) {
+    await sql`insert into entries (week_id, kid_id) select ${weekId}, id from kids where id in ${sql(ids)}
+      on conflict do nothing`;
+    await sql`delete from entries where week_id = ${weekId} and kid_id not in ${sql(ids)}`;
+  } else {
+    await sql`delete from entries where week_id = ${weekId}`;
+  }
+  redirect(`/admin/weeks/${weekId}?kids=1`);
 }

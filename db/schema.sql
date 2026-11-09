@@ -98,3 +98,6 @@ alter table weeks add column if not exists recap text not null default '';
 
 -- 수업 종류: morning(아침숲) / indoor(실내숲)
 alter table weeks add column if not exists kind text not null default 'morning';
+
+-- 아이가 듣는 수업 (morning / indoor)
+alter table kids add column if not exists classes text[] not null default '{morning,indoor}';

@@ -18,6 +18,7 @@ export type Kid = {
   phone: string;
   code: string;
   active: boolean;
+  classes: string[];
 };
 
 export type Week = {

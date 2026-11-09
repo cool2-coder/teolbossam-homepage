@@ -4,7 +4,7 @@ import { sql, isUuid } from "@/lib/db";
 import { weekStats } from "@/lib/queries";
 import { formatDate, formatTime, kindOf, kindLabel } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
-import { publish, remindNow, publishOnly, sendNotice, deleteWeek, saveRecap } from "../../actions";
+import { publish, remindNow, publishOnly, sendNotice, deleteWeek, saveRecap, setWeekKids } from "../../actions";
 import { smsConfigured } from "@/lib/sms";
 import { publishText, remindText, noticeText } from "@/lib/notify";
 import SmsButton from "@/components/SmsButton";
@@ -18,7 +18,7 @@ type KidRow = {
 };
 
 export default async function WeekPage({ params, searchParams }: {
-  params: Promise<{ id: string }>; searchParams: Promise<{ sent?: string; reminded?: string; noticed?: string; recap?: string }>;
+  params: Promise<{ id: string }>; searchParams: Promise<{ sent?: string; reminded?: string; noticed?: string; recap?: string; kids?: string }>;
 }) {
   const { id } = await params;
   const q = await searchParams;
@@ -48,6 +48,9 @@ export default async function WeekPage({ params, searchParams }: {
 
   const toSend = kids.filter((k) => k.attended && !k.notified).length;
   const waiting = kids.filter((k) => k.attended && !k.reply_at).length;
+  const allKids = await sql<{ id: string; name: string; classes: string[] }[]>`
+    select id, name, classes from kids where active order by name`;
+  const inClass = new Set(kids.map((k) => k.id));
   let step = 0;
   const sec = (t: string) => `${++step}. ${t}`;
   const replies = kids.filter((k) => k.reply_at).sort((a, b) => +b.reply_at! - +a.reply_at!);
@@ -59,6 +62,7 @@ export default async function WeekPage({ params, searchParams }: {
       <div className="pad">
         {q.sent && <div className="flash">{q.sent}가족에게 일지 문자를 보냈어요.</div>}
         {q.recap && <div className="flash">수업 기록을 저장했어요.</div>}
+        {q.kids && <div className="flash">이 수업 아이들을 바꿨어요.</div>}
         {q.noticed && <div className="flash">{q.noticed}가족에게 수업 안내 문자를 보냈어요.</div>}
         {q.reminded && <div className="flash">{q.reminded}가족에게 재알림을 보냈어요.</div>}
 
@@ -83,6 +87,25 @@ export default async function WeekPage({ params, searchParams }: {
             </>
           )}
         </div>
+
+        <details className="card">
+          <summary className="between" style={{ cursor: "pointer" }}>
+            <b className="small">이 수업 아이들 {kids.length}명</b>
+            <span className="muted tiny">고르기 ›</span>
+          </summary>
+          <form action={setWeekKids.bind(null, id)} className="stack" style={{ marginTop: 10 }}>
+            <span className="muted tiny">체크한 아이에게만 안내와 일지가 가요. 아이 명단의 ‘듣는 수업’대로 처음에 골라져 있어요.</span>
+            <div className="toggles">
+              {allKids.map((k) => (
+                <label key={k.id}>
+                  <input type="checkbox" name="kid" value={k.id} defaultChecked={inClass.has(k.id)} /> {k.name}
+                  {!k.classes.includes(kindOf(week.kind)) && <span className="muted tiny"> (다른 반)</span>}
+                </label>
+              ))}
+            </div>
+            <button className="btn ghost">저장</button>
+          </form>
+        </details>
 
         {!week.published_at && (
           <>
