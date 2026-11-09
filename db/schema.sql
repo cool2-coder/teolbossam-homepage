@@ -84,3 +84,8 @@ on conflict (key) do nothing;
 create index if not exists photos_week_idx on photos(week_id);
 create index if not exists photos_reply_idx on photos(reply_id);
 create index if not exists messages_created_idx on messages(created_at desc);
+
+-- 수업 전 안내 (모이는 시간, 준비물) 와 참석 응답
+alter table weeks add column if not exists meet_time text not null default '';
+alter table weeks add column if not exists prep text not null default '';
+alter table entries add column if not exists rsvp text;

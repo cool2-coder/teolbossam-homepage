@@ -34,3 +34,13 @@ export async function submitReply(code: string, weekId: string, form: FormData) 
   revalidatePath(`/j/${code}`);
   return { ok: true };
 }
+
+export async function setRsvp(code: string, weekId: string, going: boolean) {
+  const [kid] = await sql<Kid[]>`select * from kids where code = ${code} and active`;
+  if (!kid) return { error: "링크를 다시 확인해 주세요." };
+  const res = await sql`update entries e set rsvp = ${going ? "yes" : "no"}, attended = ${going}, updated_at = now()
+    from weeks w where w.id = e.week_id and e.week_id = ${weekId} and e.kid_id = ${kid.id} and w.published_at is null`;
+  if (res.count === 0) return { error: "이미 끝난 수업이에요." };
+  revalidatePath(`/j/${code}`);
+  return { ok: true };
+}

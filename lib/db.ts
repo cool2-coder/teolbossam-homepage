@@ -26,6 +26,8 @@ export type Week = {
   number: number;
   class_date: Date;
   place: string;
+  meet_time: string;
+  prep: string;
   topic: string;
   mission: string;
   published_at: Date | null;

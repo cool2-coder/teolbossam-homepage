@@ -13,7 +13,7 @@ export default async function NewWeek() {
       <AdminTop title="새 수업 만들기" back="/admin" />
       <form action={createWeek} className="pad">
         <WeekFields nextNumber={n} />
-        <p className="muted small">만들면 명단의 아이들이 모두 ‘출석’으로 들어가요. 빠진 아이는 다음 화면에서 바꿀 수 있어요.</p>
+        <p className="muted small">만들면 다음 화면에서 아이별로 수업 전 안내 문자를 보낼 수 있어요. 엄마들이 링크에서 참석/불참을 누르면 출석 명단이 자동으로 정리돼요.</p>
         <button className="btn">만들기</button>
       </form>
     </main>

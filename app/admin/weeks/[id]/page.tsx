@@ -4,20 +4,20 @@ import { sql, isUuid } from "@/lib/db";
 import { weekStats } from "@/lib/queries";
 import { formatDate, formatTime } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
-import { publish, remindNow, publishOnly } from "../../actions";
+import { publish, remindNow, publishOnly, sendNotice } from "../../actions";
 import { smsConfigured } from "@/lib/sms";
-import { publishText, remindText } from "@/lib/notify";
+import { publishText, remindText, noticeText } from "@/lib/notify";
 import SmsButton from "@/components/SmsButton";
 
 export const dynamic = "force-dynamic";
 
 type KidRow = {
-  id: string; name: string; guardian_label: string; phone: string; code: string; reminded: boolean; attended: boolean; note: string; photos: number;
+  id: string; name: string; guardian_label: string; phone: string; code: string; reminded: boolean; noticed: boolean; rsvp: string | null; attended: boolean; note: string; photos: number;
   reply_body: string | null; reply_at: Date | null; reply_photo: string | null; notified: boolean;
 };
 
 export default async function WeekPage({ params, searchParams }: {
-  params: Promise<{ id: string }>; searchParams: Promise<{ sent?: string; reminded?: string }>;
+  params: Promise<{ id: string }>; searchParams: Promise<{ sent?: string; reminded?: string; noticed?: string }>;
 }) {
   const { id } = await params;
   const q = await searchParams;
@@ -26,7 +26,9 @@ export default async function WeekPage({ params, searchParams }: {
   if (!week) notFound();
 
   const kids = await sql<KidRow[]>`
-    select k.id, k.name, k.guardian_label, k.phone, k.code, e.attended, e.note,
+    select k.id, k.name, k.guardian_label, k.phone, k.code, e.attended, e.note, e.rsvp,
+      exists (select 1 from messages m where m.week_id = ${id} and m.kid_id = k.id and m.kind = 'notice'
+              and m.status in ('sent','manual')) as noticed,
       exists (select 1 from messages m where m.week_id = ${id} and m.kid_id = k.id and m.kind = 'remind'
               and m.status in ('sent','manual')) as reminded,
       (select count(*)::int from photo_tags t join photos p on p.id = t.photo_id where t.kid_id = k.id and p.week_id = ${id}) as photos,
@@ -52,6 +54,7 @@ export default async function WeekPage({ params, searchParams }: {
       <AdminTop title={`${week.number}주차 · ${week.topic}`} back="/admin" />
       <div className="pad">
         {q.sent && <div className="flash">{q.sent}가족에게 일지 문자를 보냈어요.</div>}
+        {q.noticed && <div className="flash">{q.noticed}가족에게 수업 안내 문자를 보냈어요.</div>}
         {q.reminded && <div className="flash">{q.reminded}가족에게 재알림을 보냈어요.</div>}
 
         <div className="card">
@@ -60,6 +63,7 @@ export default async function WeekPage({ params, searchParams }: {
             <Link className="small" href={`/admin/weeks/${id}/edit`}>고치기</Link>
           </div>
           <h2 style={{ fontSize: 20 }}>{week.topic}</h2>
+          {(week.meet_time || week.prep) && <p className="small" style={{ margin: 0 }}>{[week.meet_time, week.prep && `준비물: ${week.prep}`].filter(Boolean).join(" · ")}</p>}
           {week.mission && <p className="small" style={{ margin: 0, whiteSpace: "pre-line" }}>집 미션: {week.mission}</p>}
           {week.published_at && (
             <>
@@ -69,12 +73,48 @@ export default async function WeekPage({ params, searchParams }: {
           )}
         </div>
 
-        <p className="sec">1. 사진 나누기</p>
+        {!week.published_at && (
+          <>
+            <p className="sec">1. 수업 전 안내 · 참석 확인</p>
+            <div className="card small">
+              <div className="row tnum">
+                <span className="st ok">참석 {kids.filter((k) => k.rsvp === "yes").length}</span>
+                <span className="st off">불참 {kids.filter((k) => k.rsvp === "no").length}</span>
+                <span className="st wait">응답 전 {kids.filter((k) => !k.rsvp).length}</span>
+              </div>
+              <span className="muted tiny">안내 문자 속 링크에서 엄마가 참석/불참을 누르면 여기와 출석 명단에 바로 반영돼요.</span>
+            </div>
+            {smsConfigured() ? (
+              kids.some((k) => !k.noticed) && (
+                <form action={sendNotice.bind(null, id)}>
+                  <button className="btn ghost">아직 안내 못 받은 {kids.filter((k) => !k.noticed).length}가족에게 안내 문자 보내기</button>
+                </form>
+              )
+            ) : null}
+            <ul className="list">
+              {kids.map((k) => (
+                <li key={k.id} className="item">
+                  <span><b>{k.name}</b>{" "}
+                    <span className={`st ${k.rsvp === "yes" ? "ok" : k.rsvp === "no" ? "off" : "wait"}`}>
+                      {k.rsvp === "yes" ? "참석" : k.rsvp === "no" ? "불참" : "응답 전"}
+                    </span>
+                  </span>
+                  {!smsConfigured() && (
+                    <SmsButton weekId={id} kidId={k.id} kind="notice" phone={k.phone} sent={k.noticed}
+                      text={noticeText(k, week)} label="안내 보내기" />
+                  )}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        <p className="sec">{week.published_at ? "1" : "2"}. 사진 나누기</p>
         <Link className="btn ghost" href={`/admin/weeks/${id}/photos`}>
           수업 사진 올리고 아이별로 나누기 {total > 0 && `(${total}장${untagged ? `, 이름 없음 ${untagged}` : ""})`}
         </Link>
 
-        <p className="sec">2. 아이별 기록</p>
+        <p className="sec">{week.published_at ? "2" : "3"}. 아이별 기록 (수업 후)</p>
         <ul className="list">
           {kids.map((k) => (
             <li key={k.id}>
@@ -92,7 +132,7 @@ export default async function WeekPage({ params, searchParams }: {
           ))}
         </ul>
 
-        <p className="sec">3. 학부모님께 보내기</p>
+        <p className="sec">{week.published_at ? "3" : "4"}. 일지 보내기 (수업 후)</p>
         {smsConfigured() ? (
           <>
             {toSend > 0 ? (

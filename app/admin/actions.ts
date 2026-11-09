@@ -4,9 +4,9 @@ import crypto from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { sql, getSettings, setSetting } from "@/lib/db";
+import { sql, getSettings, setSetting, type Week } from "@/lib/db";
 import { requireAdmin, ADMIN_COOKIE } from "@/lib/auth";
-import { publishWeek, remindWeek, publishText, remindText } from "@/lib/notify";
+import { publishWeek, remindWeek, noticeWeek, publishText, remindText, noticeText } from "@/lib/notify";
 import { POWERS } from "@/lib/brand";
 
 const str = (f: FormData, k: string, max = 2000) => String(f.get(k) ?? "").trim().slice(0, max);
@@ -47,9 +47,10 @@ export async function setKidActive(id: string, active: boolean) {
 export async function createWeek(form: FormData) {
   await requireAdmin();
   const s = await getSettings();
-  const [w] = await sql<{ id: string }[]>`insert into weeks (season, number, class_date, place, topic, mission)
-    values (${s.season}, ${Number(form.get("number")) || 1}, ${str(form, "class_date", 10)}, ${str(form, "place", 60)},
-            ${str(form, "topic", 120) || "오늘의 숲"}, ${str(form, "mission")}) returning id`;
+  const [w] = await sql<{ id: string }[]>`insert into weeks (season, number, class_date, meet_time, place, prep, topic, mission)
+    values (${s.season}, ${Number(form.get("number")) || 1}, ${str(form, "class_date", 10)}, ${str(form, "meet_time", 40)},
+            ${str(form, "place", 60)}, ${str(form, "prep", 300)}, ${str(form, "topic", 120) || "오늘의 숲"}, ${str(form, "mission")})
+    returning id`;
   await sql`insert into entries (week_id, kid_id) select ${w.id}, id from kids where active`;
   redirect(`/admin/weeks/${w.id}`);
 }
@@ -57,7 +58,7 @@ export async function createWeek(form: FormData) {
 export async function updateWeek(id: string, form: FormData) {
   await requireAdmin();
   await sql`update weeks set number = ${Number(form.get("number")) || 1}, class_date = ${str(form, "class_date", 10)},
-    place = ${str(form, "place", 60)}, topic = ${str(form, "topic", 120)}, mission = ${str(form, "mission")} where id = ${id}`;
+    meet_time = ${str(form, "meet_time", 40)}, prep = ${str(form, "prep", 300)}, place = ${str(form, "place", 60)}, topic = ${str(form, "topic", 120)}, mission = ${str(form, "mission")} where id = ${id}`;
   redirect(`/admin/weeks/${id}`);
 }
 
@@ -123,13 +124,19 @@ export async function publishOnly(weekId: string) {
 }
 
 /** Records that the teacher opened their phone's message app for this kid. */
-export async function markManualSent(weekId: string, kidId: string, kind: "publish" | "remind") {
+export async function sendNotice(weekId: string) {
+  await requireAdmin();
+  const n = await noticeWeek(weekId);
+  redirect(`/admin/weeks/${weekId}?noticed=${n}`);
+}
+
+export async function markManualSent(weekId: string, kidId: string, kind: "publish" | "remind" | "notice") {
   await requireAdmin();
   const [k] = await sql<{ phone: string; name: string; guardian_label: string; code: string }[]>`
     select phone, name, guardian_label, code from kids where id = ${kidId}`;
-  const [w] = await sql<{ number: number; topic: string }[]>`select number, topic from weeks where id = ${weekId}`;
+  const [w] = await sql<Week[]>`select * from weeks where id = ${weekId}`;
   if (!k || !w) return;
-  const body = kind === "publish" ? publishText(k, w) : remindText(k, w);
+  const body = kind === "publish" ? publishText(k, w) : kind === "notice" ? noticeText(k, w) : remindText(k, w);
   await sql`insert into messages (kid_id, week_id, kind, to_phone, body, status)
     values (${kidId}, ${weekId}, ${kind}, ${k.phone}, ${body}, 'manual')`;
   if (kind === "remind") await sql`update weeks set reminded_at = now() where id = ${weekId}`;

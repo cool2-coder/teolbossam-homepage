@@ -5,7 +5,7 @@ import { markManualSent } from "@/app/admin/actions";
 
 /** Opens the phone's own message app with the number and text filled in. */
 export default function SmsButton(props: {
-  weekId: string; kidId: string; kind: "publish" | "remind"; phone: string; text: string; sent: boolean; label: string;
+  weekId: string; kidId: string; kind: "publish" | "remind" | "notice"; phone: string; text: string; sent: boolean; label: string;
 }) {
   const [sent, setSent] = useState(props.sent);
   const to = props.phone.replace(/[^\d+]/g, "");

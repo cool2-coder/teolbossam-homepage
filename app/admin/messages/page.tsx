@@ -4,7 +4,7 @@ import AdminTop from "@/components/AdminTop";
 
 export const dynamic = "force-dynamic";
 
-const KIND: Record<string, string> = { publish: "일지 알림", remind: "재알림", teacher: "답장 알림" };
+const KIND: Record<string, string> = { notice: "수업 안내", publish: "일지 알림", remind: "재알림", teacher: "답장 알림" };
 const STATUS: Record<string, [string, string]> = {
   sent: ["보냄", "ok"], manual: ["폰으로 보냄", "ok"], logged: ["기록만 (문자 미연결)", "off"], failed: ["실패", "wait"],
 };
