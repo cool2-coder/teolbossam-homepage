@@ -28,7 +28,7 @@ export async function publishWeek(weekId: string) {
     select k.* from kids k join entries e on e.kid_id = k.id and e.week_id = ${weekId}
     where k.active and e.attended
       and not exists (select 1 from messages m where m.week_id = ${weekId} and m.kid_id = k.id
-                      and m.kind = 'publish' and m.status in ('sent','logged','manual'))`;
+                      and m.kind = 'publish' and m.status in ('sent','manual'))`;
   for (const k of kids) {
     await sendSms({ to: k.phone, text: publishText(k, week), kind: "publish", kidId: k.id, weekId });
   }

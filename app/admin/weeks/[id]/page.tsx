@@ -28,12 +28,12 @@ export default async function WeekPage({ params, searchParams }: {
   const kids = await sql<KidRow[]>`
     select k.id, k.name, k.guardian_label, k.phone, k.code, e.attended, e.note,
       exists (select 1 from messages m where m.week_id = ${id} and m.kid_id = k.id and m.kind = 'remind'
-              and m.status in ('sent','logged','manual')) as reminded,
+              and m.status in ('sent','manual')) as reminded,
       (select count(*)::int from photo_tags t join photos p on p.id = t.photo_id where t.kid_id = k.id and p.week_id = ${id}) as photos,
       r.body as reply_body, r.created_at as reply_at,
       (select p.id from photos p where p.reply_id = r.id limit 1) as reply_photo,
       exists (select 1 from messages m where m.week_id = ${id} and m.kid_id = k.id and m.kind = 'publish'
-              and m.status in ('sent','logged','manual')) as notified
+              and m.status in ('sent','manual')) as notified
     from entries e join kids k on k.id = e.kid_id
     left join replies r on r.week_id = e.week_id and r.kid_id = k.id
     where e.week_id = ${id} and k.active
