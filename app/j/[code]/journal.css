@@ -21,3 +21,7 @@
 .journal .notice dl { margin: 0; display: grid; grid-template-columns: 56px 1fr; gap: 4px 8px; font-size: 14px; }
 .journal .notice dt { color: var(--muted); }
 .journal .notice dd { margin: 0; }
+.journal .bodytext { white-space: pre-line; font-size: 15px; line-height: 1.7; overflow-wrap: anywhere; }
+.journal .bodybox { border: 1.5px dashed var(--pine); border-radius: 14px; padding: 12px 14px; }
+.journal .bodybox summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--pine); }
+.journal .bodybox[open] summary { margin-bottom: 10px; }

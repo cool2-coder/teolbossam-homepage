@@ -1,20 +1,23 @@
 import { sql, type Kid, type Week } from "./db";
 import { sendSms } from "./sms";
-import { siteUrl, formatDate } from "./brand";
+import { siteUrl, formatDate, nick } from "./brand";
 
 
 type KidLike = Pick<Kid, "name" | "guardian_label" | "code">;
 type WeekLike = Pick<Week, "topic">;
-type NoticeWeek = Pick<Week, "topic" | "class_date" | "meet_time" | "place" | "prep">;
+type NoticeWeek = Pick<Week, "topic" | "class_date" | "meet_time" | "place" | "prep" | "body">;
 
 export function publishText(k: KidLike, w: WeekLike) {
   return (
-    `[털보쌤 숲체험] ${k.name} ${k.guardian_label}, 오늘 숲 일지가 올라왔어요.\n` +
-    `주제: ${w.topic}\n이번 주 집 미션도 함께 있어요.\n${siteUrl()}/j/${k.code}`
+    `[털보쌤 숲체험] ${nick(k.name)}의 오늘 숲 일지가 올라왔어요 🌳\n` +
+    `‘${w.topic}’ 시간에 찍은 사진과 털보쌤 이야기를 보러 와 주세요.\n` +
+    `집에서 아이에게 한마디 들으시면 답장도 남겨 주세요 ^^\n${siteUrl()}/j/${k.code}`
   );
 }
 
 export function noticeText(k: KidLike, w: NoticeWeek) {
+  const link = `${siteUrl()}/j/${k.code}`;
+  if (w.body.trim()) return `${w.body.trim()}\n\n▶ ${nick(k.name)} 참석 여부를 눌러 주세요\n${link}`;
   const lines = [
     `[털보쌤 숲체험] ${k.name} ${k.guardian_label}, 이번 숲체험 안내드려요.`,
     `일시: ${formatDate(w.class_date)}${w.meet_time ? ` ${w.meet_time}` : ""}`,
@@ -22,15 +25,15 @@ export function noticeText(k: KidLike, w: NoticeWeek) {
     `주제: ${w.topic}`,
     w.prep && `준비물: ${w.prep}`,
     `참석 여부를 눌러 주세요.`,
-    `${siteUrl()}/j/${k.code}`,
+    link,
   ];
   return lines.filter(Boolean).join("\n");
 }
 
 export function remindText(k: KidLike, w: WeekLike) {
   return (
-    `[털보쌤 숲체험] ${k.name} ${k.guardian_label}, 이번 주 집 미션 답장을 기다리고 있어요.\n` +
-    `다음 수업 전까지 편하게 남겨 주세요.\n${siteUrl()}/j/${k.code}`
+    `[털보쌤 숲체험] ${nick(k.name)}는 ‘${w.topic}’ 이야기를 집에서도 했을까요? 🙂\n` +
+    `편하실 때 숲 일지에 한마디 남겨 주시면 털보쌤이 반갑게 읽을게요.\n${siteUrl()}/j/${k.code}`
   );
 }
 

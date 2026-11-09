@@ -89,3 +89,6 @@ create index if not exists messages_created_idx on messages(created_at desc);
 alter table weeks add column if not exists meet_time text not null default '';
 alter table weeks add column if not exists prep text not null default '';
 alter table entries add column if not exists rsvp text;
+
+-- 털보쌤이 쓴 안내문을 그대로 붙여 넣는 칸
+alter table weeks add column if not exists body text not null default '';

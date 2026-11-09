@@ -63,6 +63,12 @@ export default async function WeekPage({ params, searchParams }: {
             <Link className="small" href={`/admin/weeks/${id}/edit`}>고치기</Link>
           </div>
           <h2 style={{ fontSize: 20 }}>{week.topic}</h2>
+          {week.body && (
+            <details>
+              <summary className="small" style={{ cursor: "pointer" }}>수업 안내문 보기</summary>
+              <p className="small" style={{ margin: "8px 0 0", whiteSpace: "pre-line" }}>{week.body}</p>
+            </details>
+          )}
           {(week.meet_time || week.prep) && <p className="small" style={{ margin: 0 }}>{[week.meet_time, week.prep && `준비물: ${week.prep}`].filter(Boolean).join(" · ")}</p>}
           {week.mission && <p className="small" style={{ margin: 0, whiteSpace: "pre-line" }}>집 미션: {week.mission}</p>}
           {week.published_at && (

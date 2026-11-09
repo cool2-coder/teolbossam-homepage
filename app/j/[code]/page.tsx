@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 type Row = {
-  id: string; number: number; class_date: Date; place: string; topic: string; mission: string;
+  id: string; number: number; class_date: Date; place: string; topic: string; mission: string; body: string;
   note: string; powers: string[]; reply_id: string | null; reply_body: string | null;
 };
 
@@ -22,7 +22,7 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
   const settings = await getSettings();
 
   const weeks = await sql<Row[]>`
-    select w.id, w.number, w.class_date, w.place, w.topic, w.mission, e.note, e.powers,
+    select w.id, w.number, w.class_date, w.place, w.topic, w.mission, w.body, e.note, e.powers,
            r.id as reply_id, r.body as reply_body
     from weeks w
     join entries e on e.week_id = w.id and e.kid_id = ${kid.id} and e.attended
@@ -30,8 +30,8 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
     where w.published_at is not null
     order by w.class_date desc, w.created_at desc`;
 
-  const upcoming = await sql<{ id: string; class_date: Date; meet_time: string; place: string; topic: string; prep: string; rsvp: string | null }[]>`
-    select w.id, w.class_date, w.meet_time, w.place, w.topic, w.prep, e.rsvp
+  const upcoming = await sql<{ id: string; class_date: Date; meet_time: string; place: string; topic: string; prep: string; body: string; rsvp: string | null }[]>`
+    select w.id, w.class_date, w.meet_time, w.place, w.topic, w.prep, w.body, e.rsvp
     from weeks w join entries e on e.week_id = w.id and e.kid_id = ${kid.id}
     where w.published_at is null and w.class_date >= (now() at time zone 'Asia/Seoul')::date
     order by w.class_date`;
@@ -67,13 +67,19 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
       <div className="pad">
         {upcoming.map((u) => (
           <section className="notice" key={u.id}>
-            <span className="label">다가오는 숲체험</span>
-            <h2 className="topic">{u.topic}</h2>
-            <dl>
-              <dt>일시</dt><dd>{formatDate(u.class_date)}{u.meet_time ? ` ${u.meet_time}` : ""}</dd>
-              {u.place && <><dt>장소</dt><dd>{u.place}</dd></>}
-              {u.prep && <><dt>준비물</dt><dd>{u.prep}</dd></>}
-            </dl>
+            <span className="label">다가오는 숲체험 · {formatDate(u.class_date)}</span>
+            {u.body ? (
+              <div className="bodytext">{u.body}</div>
+            ) : (
+              <>
+                <h2 className="topic">{u.topic}</h2>
+                <dl>
+                  <dt>일시</dt><dd>{formatDate(u.class_date)}{u.meet_time ? ` ${u.meet_time}` : ""}</dd>
+                  {u.place && <><dt>장소</dt><dd>{u.place}</dd></>}
+                  {u.prep && <><dt>준비물</dt><dd>{u.prep}</dd></>}
+                </dl>
+              </>
+            )}
             <Rsvp code={code} weekId={u.id} initial={u.rsvp} />
           </section>
         ))}
@@ -108,6 +114,12 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
               )}
               {w.powers.length > 0 && (
                 <div className="row"><span className="muted tiny">오늘 기른 힘</span>{w.powers.map((p) => <span className="chip" key={p}>{p}</span>)}</div>
+              )}
+              {w.body && (
+                <details className="bodybox">
+                  <summary>이날 수업 안내문 다시 보기</summary>
+                  <div className="bodytext">{w.body}</div>
+                </details>
               )}
               {w.mission && (
                 <div className="mission">
