@@ -26,17 +26,11 @@ export default async function Settings({ searchParams }: { searchParams: Promise
         <p className="muted small">발행한 지 2일 이상 지난 수업만, 답장 안 한 가족에게 한 번 보내요.</p>
 
         <p className="sec">시즌</p>
-        <div className="row" style={{ flexWrap: "nowrap" }}>
-          <div className="field" style={{ flex: 1 }}>
-            <label className="l" htmlFor="season">시즌 이름</label>
-            <input id="season" name="season" type="text" defaultValue={s.season} />
-          </div>
-          <div className="field" style={{ width: 110 }}>
-            <label className="l" htmlFor="season_weeks">총 수업 수</label>
-            <input id="season_weeks" name="season_weeks" type="number" min={1} defaultValue={s.seasonWeeks} />
-          </div>
+        <div className="field">
+          <label className="l" htmlFor="season">시즌 이름</label>
+          <input id="season" name="season" type="text" defaultValue={s.season} />
         </div>
-        <p className="muted small">시즌 이름을 바꾸면 학부모님 일지는 새 시즌 기록부터 보여요.</p>
+        <p className="muted small">학부모님 일지 맨 위에 작게 보여요. 지난 기록은 시즌이 바뀌어도 계속 쌓여요.</p>
         <button className="btn">저장</button>
       </form>
     </main>

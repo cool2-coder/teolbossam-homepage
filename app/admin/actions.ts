@@ -111,8 +111,6 @@ export async function saveSettings(form: FormData) {
   await setSetting("remind_weekday", String(Math.min(6, Math.max(0, Number(form.get("remind_weekday")) || 0))));
   const season = str(form, "season", 30);
   if (season) await setSetting("season", season);
-  const weeks = Number(form.get("season_weeks"));
-  if (weeks > 0 && weeks < 60) await setSetting("season_weeks", String(weeks));
   redirect("/admin/settings?saved=1");
 }
 

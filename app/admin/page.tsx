@@ -59,7 +59,7 @@ export default async function Dashboard() {
         <ul className="list">
           <li><Link className="item" href="/admin/kids"><span>아이 명단</span><span className="muted">{kidCount}명 ›</span></Link></li>
           <li><Link className="item" href="/admin/messages"><span>문자 기록</span><span className="muted">›</span></Link></li>
-          <li><Link className="item" href="/admin/settings"><span>설정 (시즌, 재알림)</span><span className="muted">›</span></Link></li>
+          <li><Link className="item" href="/admin/settings"><span>설정</span><span className="muted">›</span></Link></li>
         </ul>
 
         {weeks.length > 1 && (
