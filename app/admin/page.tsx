@@ -20,6 +20,9 @@ export default async function Dashboard() {
           <div>
             <span className="muted tiny">털보쌤 숲체험 · {s.season}</span>
             <h1 style={{ fontSize: 24 }}>털보쌤 관리</h1>
+            <span className="muted tiny">
+              버전 {(process.env.COMMIT_REF ?? "local").slice(0, 7)} · 문자: {smsConfigured() ? "문자 서비스 연결됨" : "선생님 폰으로 보내기"}
+            </span>
           </div>
           <form action={logout}><button className="btn ghost small">나가기</button></form>
         </div>
