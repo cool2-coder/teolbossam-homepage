@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { sql, getSettings, setSetting } from "@/lib/db";
 import { requireAdmin, ADMIN_COOKIE } from "@/lib/auth";
-import { publishWeek, remindWeek } from "@/lib/notify";
+import { publishWeek, remindWeek, publishText, remindText } from "@/lib/notify";
 import { POWERS } from "@/lib/brand";
 
 const str = (f: FormData, k: string, max = 2000) => String(f.get(k) ?? "").trim().slice(0, max);
@@ -113,4 +113,24 @@ export async function saveSettings(form: FormData) {
   const weeks = Number(form.get("season_weeks"));
   if (weeks > 0 && weeks < 60) await setSetting("season_weeks", String(weeks));
   redirect("/admin/settings?saved=1");
+}
+
+/* 선생님 폰으로 직접 보내기 (문자 서비스 없이) */
+export async function publishOnly(weekId: string) {
+  await requireAdmin();
+  await sql`update weeks set published_at = coalesce(published_at, now()) where id = ${weekId}`;
+  redirect(`/admin/weeks/${weekId}`);
+}
+
+/** Records that the teacher opened their phone's message app for this kid. */
+export async function markManualSent(weekId: string, kidId: string, kind: "publish" | "remind") {
+  await requireAdmin();
+  const [k] = await sql<{ phone: string; name: string; guardian_label: string; code: string }[]>`
+    select phone, name, guardian_label, code from kids where id = ${kidId}`;
+  const [w] = await sql<{ number: number; topic: string }[]>`select number, topic from weeks where id = ${weekId}`;
+  if (!k || !w) return;
+  const body = kind === "publish" ? publishText(k, w) : remindText(k, w);
+  await sql`insert into messages (kid_id, week_id, kind, to_phone, body, status)
+    values (${kidId}, ${weekId}, ${kind}, ${k.phone}, ${body}, 'manual')`;
+  if (kind === "remind") await sql`update weeks set reminded_at = now() where id = ${weekId}`;
 }

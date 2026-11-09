@@ -9,7 +9,7 @@ export async function weekStats(where?: { id?: string; season?: string }) {
       (select count(*)::int from replies r join entries e on e.week_id = r.week_id and e.kid_id = r.kid_id
          where r.week_id = w.id and e.attended) as replied,
       (select count(distinct m.kid_id)::int from messages m where m.week_id = w.id and m.kind = 'publish'
-         and m.status in ('sent','logged')) as notified
+         and m.status in ('sent','logged','manual')) as notified
     from weeks w
     where ${where?.id ? sql`w.id = ${where.id}` : where?.season ? sql`w.season = ${where.season}` : sql`true`}
     order by w.class_date desc, w.number desc`;

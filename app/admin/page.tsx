@@ -24,12 +24,6 @@ export default async function Dashboard() {
           <form action={logout}><button className="btn ghost small">나가기</button></form>
         </div>
 
-        {!smsConfigured() && (
-          <div className="err small">
-            문자 서비스가 아직 연결되지 않았어요. 지금은 문자가 실제로 나가지 않고 ‘문자 기록’에만 남아요.
-          </div>
-        )}
-
         {cur ? (
           <Link href={`/admin/weeks/${cur.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
             <div className="between">
@@ -47,9 +41,16 @@ export default async function Dashboard() {
         <Link className="btn" href="/admin/weeks/new">+ 새 수업 만들기</Link>
 
         <div className="card small">
-          <span>
-            미답장 자동 재알림: <b>{s.remindEnabled ? `매주 ${WEEKDAYS[s.remindWeekday]}요일 저녁 7시쯤` : "꺼짐"}</b>
-          </span>
+          {smsConfigured() ? (
+            <span>
+              미답장 자동 재알림: <b>{s.remindEnabled ? `매주 ${WEEKDAYS[s.remindWeekday]}요일 저녁 7시쯤` : "꺼짐"}</b>
+            </span>
+          ) : (
+            <span>
+              문자는 <b>선생님 폰</b>으로 보내요. 수업 화면에서 발행한 뒤 아이별 [문자 보내기]를 눌러 주세요.
+              답장 안 한 가족 재알림도 같은 화면에 있어요.
+            </span>
+          )}
         </div>
 
         <ul className="list">

@@ -1,5 +1,6 @@
 import { sql, getSettings } from "@/lib/db";
 import { remindWeek } from "@/lib/notify";
+import { smsConfigured } from "@/lib/sms";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ export async function GET(req: Request) {
   }
   const s = await getSettings();
   const kstDay = new Date(Date.now() + 9 * 3600_000).getUTCDay();
-  if (!s.remindEnabled || kstDay !== s.remindWeekday) return Response.json({ skipped: true });
+  if (!smsConfigured() || !s.remindEnabled || kstDay !== s.remindWeekday) return Response.json({ skipped: true });
 
   const weeks = await sql<{ id: string }[]>`
     select id from weeks where published_at is not null and reminded_at is null

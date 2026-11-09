@@ -4,12 +4,15 @@ import { sql, isUuid } from "@/lib/db";
 import { weekStats } from "@/lib/queries";
 import { formatDate, formatTime } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
-import { publish, remindNow } from "../../actions";
+import { publish, remindNow, publishOnly } from "../../actions";
+import { smsConfigured } from "@/lib/sms";
+import { publishText, remindText } from "@/lib/notify";
+import SmsButton from "@/components/SmsButton";
 
 export const dynamic = "force-dynamic";
 
 type KidRow = {
-  id: string; name: string; guardian_label: string; attended: boolean; note: string; photos: number;
+  id: string; name: string; guardian_label: string; phone: string; code: string; reminded: boolean; attended: boolean; note: string; photos: number;
   reply_body: string | null; reply_at: Date | null; reply_photo: string | null; notified: boolean;
 };
 
@@ -23,12 +26,14 @@ export default async function WeekPage({ params, searchParams }: {
   if (!week) notFound();
 
   const kids = await sql<KidRow[]>`
-    select k.id, k.name, k.guardian_label, e.attended, e.note,
+    select k.id, k.name, k.guardian_label, k.phone, k.code, e.attended, e.note,
+      exists (select 1 from messages m where m.week_id = ${id} and m.kid_id = k.id and m.kind = 'remind'
+              and m.status in ('sent','logged','manual')) as reminded,
       (select count(*)::int from photo_tags t join photos p on p.id = t.photo_id where t.kid_id = k.id and p.week_id = ${id}) as photos,
       r.body as reply_body, r.created_at as reply_at,
       (select p.id from photos p where p.reply_id = r.id limit 1) as reply_photo,
       exists (select 1 from messages m where m.week_id = ${id} and m.kid_id = k.id and m.kind = 'publish'
-              and m.status in ('sent','logged')) as notified
+              and m.status in ('sent','logged','manual')) as notified
     from entries e join kids k on k.id = e.kid_id
     left join replies r on r.week_id = e.week_id and r.kid_id = k.id
     where e.week_id = ${id} and k.active
@@ -88,17 +93,56 @@ export default async function WeekPage({ params, searchParams }: {
         </ul>
 
         <p className="sec">3. 학부모님께 보내기</p>
-        {toSend > 0 ? (
-          <form action={publish.bind(null, id)}>
-            <button className="btn">{week.published_at ? `아직 못 받은 ${toSend}가족에게 보내기` : `발행하고 ${toSend}가족에게 문자 보내기`}</button>
+        {smsConfigured() ? (
+          <>
+            {toSend > 0 ? (
+              <form action={publish.bind(null, id)}>
+                <button className="btn">{week.published_at ? `아직 못 받은 ${toSend}가족에게 보내기` : `발행하고 ${toSend}가족에게 문자 보내기`}</button>
+              </form>
+            ) : (
+              <div className="card small">출석한 가족 모두에게 일지 문자를 보냈어요.</div>
+            )}
+            {week.published_at && waiting > 0 && (
+              <form action={remindNow.bind(null, id)}>
+                <button className="btn warn">답장 안 한 {waiting}가족에게 지금 재알림</button>
+              </form>
+            )}
+          </>
+        ) : !week.published_at ? (
+          <form action={publishOnly.bind(null, id)} className="stack">
+            <button className="btn">발행하기 (학부모님 일지에 공개)</button>
+            <p className="muted tiny" style={{ margin: 0 }}>발행하면 아이별 [문자 보내기] 버튼이 생겨요. 누르면 폰 문자 앱에 번호와 내용이 채워져 열려요.</p>
           </form>
         ) : (
-          <div className="card small">출석한 가족 모두에게 일지 문자를 보냈어요.</div>
-        )}
-        {week.published_at && waiting > 0 && (
-          <form action={remindNow.bind(null, id)}>
-            <button className="btn warn">답장 안 한 {waiting}가족에게 지금 재알림</button>
-          </form>
+          <>
+            <div className="card small">
+              <b>문자 보내기 {kids.filter((k) => k.attended && k.notified).length}/{week.attended}</b>
+              <span className="muted tiny">버튼을 누르면 문자 앱이 열려요. 전송을 누르고 이 화면으로 돌아와 다음 아이를 눌러 주세요.</span>
+            </div>
+            <ul className="list">
+              {kids.filter((k) => k.attended).map((k) => (
+                <li key={k.id} className="item">
+                  <span><b>{k.name}</b> <span className="muted small">{k.guardian_label}</span></span>
+                  <SmsButton weekId={id} kidId={k.id} kind="publish" phone={k.phone} sent={k.notified}
+                    text={publishText(k, week)} label="문자 보내기" />
+                </li>
+              ))}
+            </ul>
+            {waiting > 0 && (
+              <details className="card">
+                <summary><b className="small">답장 안 한 {waiting}가족에게 재알림 보내기</b></summary>
+                <ul className="list">
+                  {kids.filter((k) => k.attended && !k.reply_at).map((k) => (
+                    <li key={k.id} className="item">
+                      <span><b>{k.name}</b> <span className="muted small">{k.guardian_label}</span></span>
+                      <SmsButton weekId={id} kidId={k.id} kind="remind" phone={k.phone} sent={k.reminded}
+                        text={remindText(k, week)} label="재알림" />
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+          </>
         )}
         {week.reminded_at && <p className="muted tiny">마지막 재알림: {formatTime(week.reminded_at)}</p>}
 
