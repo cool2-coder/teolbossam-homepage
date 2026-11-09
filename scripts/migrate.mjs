@@ -2,7 +2,7 @@ import "./env.mjs";
 import fs from "node:fs";
 import postgres from "postgres";
 
-const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+const url = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || process.env.POSTGRES_URL;
 if (!url) {
   console.warn("DATABASE_URL이 없어 DB 준비를 건너뜁니다.");
   process.exit(0);

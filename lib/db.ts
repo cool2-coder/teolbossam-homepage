@@ -3,7 +3,7 @@ import postgres from "postgres";
 const g = globalThis as unknown as { __sql?: postgres.Sql };
 
 function connect() {
-  const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  const url = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || process.env.POSTGRES_URL;
   if (!url) throw new Error("DATABASE_URL이 설정되지 않았습니다.");
   const local = /localhost|127\.0\.0\.1/.test(url);
   return postgres(url, { ssl: local ? false : "require", prepare: false, max: 5 });

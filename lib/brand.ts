@@ -27,7 +27,7 @@ export function kstDateString(d: Date = new Date()) {
 
 export function siteUrl() {
   const fromVercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
-  const url = process.env.SITE_URL || (fromVercel ? `https://${fromVercel}` : "");
+  const url = process.env.SITE_URL || (fromVercel ? `https://${fromVercel}` : "") || process.env.URL || "";
   return url.replace(/\/$/, "");
 }
 
