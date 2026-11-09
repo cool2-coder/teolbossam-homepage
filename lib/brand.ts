@@ -26,7 +26,9 @@ export function kstDateString(d: Date = new Date()) {
 }
 
 export function siteUrl() {
-  return (process.env.SITE_URL ?? "").replace(/\/$/, "");
+  const fromVercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  const url = process.env.SITE_URL || (fromVercel ? `https://${fromVercel}` : "");
+  return url.replace(/\/$/, "");
 }
 
 /** "민준" → "민준이", "서아" → "서아" (Korean nickname form, used before 가/의/도). */

@@ -19,22 +19,19 @@
 - 학부모님 답장은 아이 일지와 관리 화면에 모여요. `TEACHER_PHONE`을 넣으면 답장이 올 때 알림 문자도 받아요.
 - 정한 요일(기본: 목요일) 저녁 7시쯤, 답장 안 한 가족에게만 재알림이 가요.
 
-## 처음 설치하기 (한 번만)
+## 처음 설치하기 (Vercel 하나로)
 
-준비물은 무료로 시작할 수 있어요.
+1. Vercel → **Add New → Project** → GitHub의 `teolbossam-homepage` 저장소를 **Import**.
+2. **Environment Variables**에 `ADMIN_PASSWORD`(관리자 비밀번호)를 넣고 **Deploy**.
+3. 프로젝트 → **Storage → Create Database → Neon(Postgres)** → 이 프로젝트에 연결(Connect).
+   `DATABASE_URL`이 자동으로 들어가요.
+4. **Deployments → 맨 위 배포 ⋯ → Redeploy**. 배포할 때 DB 표가 자동으로 만들어져요.
+5. `https://프로젝트이름.vercel.app/admin`에 들어가서 **아이 명단**부터 등록해요.
 
-1. **DB 만들기**: [Supabase](https://supabase.com)에서 프로젝트를 만들고, Project Settings → Database → Connection string(URI)을 복사해요.
-2. **문자 서비스**: [솔라피](https://solapi.com)에 가입하고 발신번호를 등록(본인 인증)한 뒤 API Key와 Secret을 만들어요.
-   건너뛰어도 홈페이지는 돌아가요. 이때 문자는 실제로 나가지 않고 관리 화면의 ‘문자 기록’에만 남아요.
-3. **배포**: [Vercel](https://vercel.com)에서 이 저장소를 가져오고(Import), Environment Variables에 `.env.example`의 값을 채워요.
-4. **표 만들기**: 내 컴퓨터에서 한 번 실행해요.
-   ```bash
-   npm install
-   DATABASE_URL="복사한 주소" npm run db:migrate
-   ```
-5. `https://내주소/admin`에 `ADMIN_PASSWORD`로 들어가서 **아이 명단**부터 등록하면 끝이에요.
+문자 링크 주소는 Vercel 주소가 자동으로 쓰여요. 나중에 도메인을 사면 `SITE_URL`에 넣어 주세요.
 
-자동 재알림은 `vercel.json`의 크론이 매일 19시(한국 시간)에 확인해요. Vercel에 `CRON_SECRET`을 꼭 넣어 주세요.
+**문자 자동 발송 (나중에)**: 솔라피에 가입하고 발신번호를 등록한 뒤 `SOLAPI_API_KEY`, `SOLAPI_API_SECRET`, `SMS_FROM`, `CRON_SECRET`을 넣으면 켜져요.
+그전까지는 문자가 나가지 않고 관리 화면의 ‘문자 기록’에만 남아서 비용이 들지 않아요.
 
 ## 개발
 
