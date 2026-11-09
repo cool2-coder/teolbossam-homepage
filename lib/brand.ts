@@ -37,3 +37,11 @@ export function nick(name: string) {
   if (c >= 0xac00 && c <= 0xd7a3 && (c - 0xac00) % 28 !== 0) return name + "이";
   return name;
 }
+
+export const CLASS_KINDS = {
+  morning: { label: "아침숲", icon: "🌳" },
+  indoor: { label: "실내숲", icon: "🏠" },
+} as const;
+export type ClassKind = keyof typeof CLASS_KINDS;
+export const kindOf = (k: string): ClassKind => (k === "indoor" ? "indoor" : "morning");
+export const kindLabel = (k: string) => CLASS_KINDS[kindOf(k)].label;

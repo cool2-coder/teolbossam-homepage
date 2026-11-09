@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { sql, getSettings } from "@/lib/db";
 import { weekStats } from "@/lib/queries";
-import { formatDate, WEEKDAYS } from "@/lib/brand";
+import { formatDate, WEEKDAYS, CLASS_KINDS, kindOf, type ClassKind } from "@/lib/brand";
+import type { WeekStat } from "@/lib/queries";
 import { smsConfigured } from "@/lib/sms";
 import { logout } from "./actions";
 
@@ -9,9 +10,16 @@ export const dynamic = "force-dynamic";
 
 export default async function Dashboard() {
   const s = await getSettings();
-  const weeks = await weekStats({ season: s.season });
+  const weeks = await weekStats();
   const [{ n: kidCount }] = await sql<{ n: number }[]>`select count(*)::int as n from kids where active`;
-  const cur = weeks[0];
+  // For each class kind: the next class still to run, otherwise the most recent one.
+  const pick = (k: ClassKind) => {
+    const list = weeks.filter((w) => kindOf(w.kind) === k);
+    const open = list.filter((w) => !w.published_at).sort((a, b) => +a.class_date - +b.class_date);
+    return open[0] ?? list[0];
+  };
+  const current = (Object.keys(CLASS_KINDS) as ClassKind[]).map((k) => [k, pick(k)] as const);
+  const shown = new Set(current.map(([, w]) => w?.id));
 
   return (
     <main className="page">
@@ -27,21 +35,11 @@ export default async function Dashboard() {
           <form action={logout}><button className="btn ghost small">나가기</button></form>
         </div>
 
-        {cur ? (
-          <Link href={`/admin/weeks/${cur.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
-            <div className="between">
-              <span className="muted small">{formatDate(cur.class_date)}{cur.place ? ` · ${cur.place}` : ""}</span>
-              <span className={`st ${cur.published_at ? "ok" : "wait"}`}>{cur.published_at ? "발행됨" : "발행 전"}</span>
-            </div>
-            <h2 style={{ fontSize: 20 }}>{cur.topic}</h2>
-            <div className="between small tnum"><span>{cur.attended}가족 중</span><span><b>{cur.replied}</b>가족 답장</span></div>
-            <div className="bar"><i style={{ width: `${cur.attended ? (cur.replied / cur.attended) * 100 : 0}%` }} /></div>
-          </Link>
-        ) : (
-          <div className="card"><b>아직 수업이 없어요.</b><span className="muted small">아래에서 첫 수업을 만들어 주세요.</span></div>
-        )}
-
-        <Link className="btn" href="/admin/weeks/new">+ 새 수업 만들기</Link>
+        <div className="kcards">
+          {current.map(([k, w]) => (
+            <KindCard key={k} kind={k} week={w} />
+          ))}
+        </div>
 
         <div className="card small">
           {smsConfigured() ? (
@@ -62,14 +60,15 @@ export default async function Dashboard() {
           <li><Link className="item" href="/admin/settings"><span>설정</span><span className="muted">›</span></Link></li>
         </ul>
 
-        {weeks.length > 1 && (
+        {weeks.some((w) => !shown.has(w.id)) && (
           <>
-            <p className="sec">지난 수업</p>
+            <p className="sec">다른 수업</p>
             <ul className="list">
-              {weeks.slice(1).map((w) => (
-                <li key={w.id}>
+              {weeks.filter((w) => !shown.has(w.id)).map((w) => (
+                <li key={w.id} data-kind={kindOf(w.kind)}>
                   <Link className="item" href={`/admin/weeks/${w.id}`}>
-                    <span><span className="muted small tnum">{formatDate(w.class_date)}</span> · {w.topic}</span>
+                    <span><span className="kchip">{CLASS_KINDS[kindOf(w.kind)].label}</span>{" "}
+                      <span className="muted small tnum">{formatDate(w.class_date)}</span> · {w.topic}</span>
                     <span className="muted small tnum">답장 {w.replied}/{w.attended}</span>
                   </Link>
                 </li>
@@ -79,5 +78,41 @@ export default async function Dashboard() {
         )}
       </div>
     </main>
+  );
+}
+
+function KindCard({ kind, week }: { kind: ClassKind; week?: WeekStat }) {
+  const meta = CLASS_KINDS[kind];
+  return (
+    <section className="kcard" data-kind={kind}>
+      <div className="khead">
+        <span>{meta.icon} {meta.label}</span>
+        <Link href={`/admin/weeks/new?kind=${kind}`} style={{ color: "inherit", fontSize: 13 }}>+ 새 {meta.label}</Link>
+      </div>
+      {week ? (
+        <Link href={`/admin/weeks/${week.id}`} className="kbody">
+          <div className="between">
+            <span className="muted small">{formatDate(week.class_date)}</span>
+            <span className={`st ${week.published_at ? "ok" : "wait"}`}>{week.published_at ? "일지 발행됨" : "수업 전"}</span>
+          </div>
+          <h2 style={{ fontSize: 19 }}>{week.topic}</h2>
+          {week.published_at ? (
+            <>
+              <div className="between small tnum"><span>{week.attended}가족 중</span><span><b>{week.replied}</b>가족 답장</span></div>
+              <div className="bar"><i style={{ width: `${week.attended ? (week.replied / week.attended) * 100 : 0}%` }} /></div>
+            </>
+          ) : (
+            <div className="row small tnum">
+              <span className="st ok">참석 {week.rsvp_yes}</span>
+              <span className="st off">불참 {week.rsvp_no}</span>
+            </div>
+          )}
+        </Link>
+      ) : (
+        <div className="kbody">
+          <span className="muted small">아직 {meta.label} 수업이 없어요.</span>
+        </div>
+      )}
+    </section>
   );
 }

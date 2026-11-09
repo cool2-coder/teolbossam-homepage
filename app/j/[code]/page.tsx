@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { sql, getSettings, type Kid } from "@/lib/db";
-import { formatDate, nick } from "@/lib/brand";
+import { formatDate, nick, kindOf, kindLabel } from "@/lib/brand";
 import ReplyForm from "@/components/ReplyForm";
 import Rsvp from "@/components/Rsvp";
 import RichText from "@/components/RichText";
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 type Row = {
-  id: string; number: number; class_date: Date; place: string; topic: string; mission: string; body: string; recap: string;
+  id: string; number: number; class_date: Date; place: string; topic: string; mission: string; body: string; recap: string; kind: string;
   note: string; powers: string[]; reply_id: string | null; reply_body: string | null;
 };
 
@@ -23,7 +23,7 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
   const settings = await getSettings();
 
   const weeks = await sql<Row[]>`
-    select w.id, w.number, w.class_date, w.place, w.topic, w.mission, w.body, w.recap, e.note, e.powers,
+    select w.id, w.number, w.class_date, w.place, w.topic, w.mission, w.body, w.recap, w.kind, e.note, e.powers,
            r.id as reply_id, r.body as reply_body
     from weeks w
     join entries e on e.week_id = w.id and e.kid_id = ${kid.id} and e.attended
@@ -31,8 +31,8 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
     where w.published_at is not null
     order by w.class_date desc, w.created_at desc`;
 
-  const upcoming = await sql<{ id: string; class_date: Date; meet_time: string; place: string; topic: string; prep: string; body: string; rsvp: string | null }[]>`
-    select w.id, w.class_date, w.meet_time, w.place, w.topic, w.prep, w.body, e.rsvp
+  const upcoming = await sql<{ id: string; class_date: Date; meet_time: string; place: string; topic: string; prep: string; body: string; kind: string; rsvp: string | null }[]>`
+    select w.id, w.class_date, w.meet_time, w.place, w.topic, w.prep, w.body, w.kind, e.rsvp
     from weeks w join entries e on e.week_id = w.id and e.kid_id = ${kid.id}
     where w.published_at is null and w.class_date >= (now() at time zone 'Asia/Seoul')::date
     order by w.class_date`;
@@ -67,8 +67,8 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
 
       <div className="pad">
         {upcoming.map((u) => (
-          <section className="notice" key={u.id}>
-            <span className="label">다가오는 숲체험 · {formatDate(u.class_date)}</span>
+          <section className="notice" key={u.id} data-kind={kindOf(u.kind)}>
+            <span className="label"><span className="kchip">{kindLabel(u.kind)}</span> 다가오는 숲체험 · {formatDate(u.class_date)}</span>
             {u.body ? (
               <div className="bodytext">{u.body}</div>
             ) : (
@@ -94,9 +94,9 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
 
         {weeks.map((w, i) => {
           const body = (
-            <article className="entry">
+            <article className="entry" data-kind={kindOf(w.kind)}>
               <div className="meta">
-                <b>{weeks.length - i}번째 숲</b>
+                <span className="row"><b>{weeks.length - i}번째 숲</b><span className="kchip">{kindLabel(w.kind)}</span></span>
                 <span>{formatDate(w.class_date)}{w.place ? ` · ${w.place}` : ""}</span>
               </div>
               <h2 className="topic">{w.topic}</h2>
@@ -161,7 +161,7 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
           ) : (
             <details key={w.id} className="past">
               <summary>
-                <span>{weeks.length - i}번째 · {w.topic}</span>
+                <span data-kind={kindOf(w.kind)}><span className="kchip">{kindLabel(w.kind)}</span> {w.topic}</span>
                 <span className={`st ${w.reply_id ? "ok" : "wait"}`}>{w.reply_id ? "답장 완료" : "답장 전"}</span>
               </summary>
               {body}

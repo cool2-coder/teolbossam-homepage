@@ -95,3 +95,6 @@ alter table weeks add column if not exists body text not null default '';
 
 -- 수업 후 공통 기록 (모든 아이 일지에 함께 보여요)
 alter table weeks add column if not exists recap text not null default '';
+
+-- 수업 종류: morning(아침숲) / indoor(실내숲)
+alter table weeks add column if not exists kind text not null default 'morning';

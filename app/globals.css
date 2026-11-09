@@ -137,3 +137,21 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
 .seg button[aria-pressed="true"][data-v="none"] { background: var(--wait-soft); color: var(--wait); font-weight: 700; }
 .seg[data-pending] { opacity: .7; }
 .kidrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 2px; border-bottom: 1px solid var(--line); }
+
+/* 수업 종류 색: 아침숲(초록) / 실내숲(파랑) */
+:root { --morning: #2f5d43; --morning-soft: #dbe8dc; --indoor: #35588a; --indoor-soft: #dce5f2; }
+@media (prefers-color-scheme: dark) { :root { --morning: #7fbf96; --morning-soft: #22342a; --indoor: #8fb2e3; --indoor-soft: #1e2a3b; } }
+[data-kind="morning"] { --k: var(--morning); --k-soft: var(--morning-soft); }
+[data-kind="indoor"] { --k: var(--indoor); --k-soft: var(--indoor-soft); }
+.kchip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: var(--k-soft); color: var(--k); white-space: nowrap; }
+.kindpick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kindpick label { border: 2px solid var(--line); border-radius: 14px; padding: 14px; text-align: center; font-weight: 700; cursor: pointer; }
+.kindpick input { position: absolute; opacity: 0; pointer-events: none; }
+.kindpick label:has(input:checked) { border-color: var(--k); background: var(--k-soft); color: var(--k); }
+.kindpick label:has(input:focus-visible) { outline: 3px solid var(--acorn); }
+.kcard { border-radius: 16px; border: 2px solid var(--k); background: var(--screen); overflow: hidden; display: flex; flex-direction: column; }
+.kcard > .khead { background: var(--k); color: var(--screen); padding: 8px 14px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.kcard > .kbody { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; color: inherit; text-decoration: none; }
+.kcard .kbody .bar i { background: var(--k); }
+.kcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.kband { height: 6px; background: var(--k); }

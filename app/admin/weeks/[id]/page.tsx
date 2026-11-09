@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { sql, isUuid } from "@/lib/db";
 import { weekStats } from "@/lib/queries";
-import { formatDate, formatTime } from "@/lib/brand";
+import { formatDate, formatTime, kindOf, kindLabel } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
 import { publish, remindNow, publishOnly, sendNotice, deleteWeek, saveRecap } from "../../actions";
 import { smsConfigured } from "@/lib/sms";
@@ -53,8 +53,9 @@ export default async function WeekPage({ params, searchParams }: {
   const replies = kids.filter((k) => k.reply_at).sort((a, b) => +b.reply_at! - +a.reply_at!);
 
   return (
-    <main className="page">
-      <AdminTop title={`${formatDate(week.class_date)} · ${week.topic}`} back="/admin" />
+    <main className="page" data-kind={kindOf(week.kind)}>
+      <AdminTop title={`${kindLabel(week.kind)} · ${week.topic}`} back="/admin" />
+      <div className="kband" />
       <div className="pad">
         {q.sent && <div className="flash">{q.sent}가족에게 일지 문자를 보냈어요.</div>}
         {q.recap && <div className="flash">수업 기록을 저장했어요.</div>}
@@ -63,7 +64,7 @@ export default async function WeekPage({ params, searchParams }: {
 
         <div className="card">
           <div className="between">
-            <span className="muted small">{formatDate(week.class_date)}{week.place ? ` · ${week.place}` : ""}</span>
+            <span className="row"><span className="kchip">{kindLabel(week.kind)}</span><span className="muted small">{formatDate(week.class_date)}</span></span>
             <Link className="small" href={`/admin/weeks/${id}/edit`}>고치기</Link>
           </div>
           <h2 style={{ fontSize: 20 }}>{week.topic}</h2>

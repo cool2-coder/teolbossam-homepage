@@ -1,3 +1,4 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE, adminToken } from "@/lib/auth";
@@ -5,7 +6,14 @@ import { ADMIN_COOKIE, adminToken } from "@/lib/auth";
 async function login(form: FormData) {
   "use server";
   const pw = String(form.get("password") ?? "");
-  if (!process.env.ADMIN_PASSWORD || pw !== process.env.ADMIN_PASSWORD) redirect("/admin/login?e=1");
+  const expected = process.env.ADMIN_PASSWORD ?? "";
+  const a = createHash("sha256").update(pw).digest();
+  const b = createHash("sha256").update(expected).digest();
+  if (!expected || !timingSafeEqual(a, b)) {
+    // Slow down password guessing.
+    await new Promise((r) => setTimeout(r, 1500));
+    redirect("/admin/login?e=1");
+  }
   (await cookies()).set(ADMIN_COOKIE, await adminToken(), {
     httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 180,
   });

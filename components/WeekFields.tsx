@@ -1,9 +1,21 @@
 import type { Week } from "@/lib/db";
-import { kstDateString } from "@/lib/brand";
+import { kstDateString, CLASS_KINDS, kindOf } from "@/lib/brand";
 
-export default function WeekFields({ week }: { week?: Week }) {
+export default function WeekFields({ week, kind }: { week?: Week; kind?: string }) {
+  const current = kindOf(week?.kind ?? kind ?? "morning");
   return (
     <>
+      <div className="field">
+        <span className="l">어떤 수업인가요?</span>
+        <div className="kindpick">
+          {Object.entries(CLASS_KINDS).map(([k, v]) => (
+            <label key={k} data-kind={k}>
+              <input type="radio" name="kind" value={k} defaultChecked={current === k} />
+              <span>{v.icon} {v.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
       <div className="field">
         <label className="l" htmlFor="topic">주제 (목록과 문자 제목에 쓰여요)</label>
         <input id="topic" name="topic" type="text" defaultValue={week?.topic} required placeholder="사마귀 알집 찾기 탐험대" />

@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { sql, getSettings, setSetting, type Week } from "@/lib/db";
 import { requireAdmin, ADMIN_COOKIE } from "@/lib/auth";
 import { publishWeek, remindWeek, noticeWeek, publishText, remindText, noticeText } from "@/lib/notify";
-import { POWERS } from "@/lib/brand";
+import { POWERS, kindOf } from "@/lib/brand";
 
 const str = (f: FormData, k: string, max = 2000) => String(f.get(k) ?? "").trim().slice(0, max);
 
@@ -47,8 +47,8 @@ export async function setKidActive(id: string, active: boolean) {
 export async function createWeek(form: FormData) {
   await requireAdmin();
   const s = await getSettings();
-  const [w] = await sql<{ id: string }[]>`insert into weeks (season, number, class_date, topic, body)
-    values (${s.season}, (select coalesce(max(number), 0) + 1 from weeks), ${str(form, "class_date", 10)},
+  const [w] = await sql<{ id: string }[]>`insert into weeks (season, number, kind, class_date, topic, body)
+    values (${s.season}, (select coalesce(max(number), 0) + 1 from weeks), ${kindOf(str(form, "kind", 10))}, ${str(form, "class_date", 10)},
             ${str(form, "topic", 120) || "오늘의 숲"}, ${str(form, "body", 30000)})
     returning id`;
   await sql`insert into entries (week_id, kid_id) select ${w.id}, id from kids where active`;
@@ -57,7 +57,7 @@ export async function createWeek(form: FormData) {
 
 export async function updateWeek(id: string, form: FormData) {
   await requireAdmin();
-  await sql`update weeks set class_date = ${str(form, "class_date", 10)}, topic = ${str(form, "topic", 120)},
+  await sql`update weeks set kind = ${kindOf(str(form, "kind", 10))}, class_date = ${str(form, "class_date", 10)}, topic = ${str(form, "topic", 120)},
     body = ${str(form, "body", 30000)} where id = ${id}`;
   redirect(`/admin/weeks/${id}`);
 }

@@ -30,6 +30,7 @@ export type Week = {
   prep: string;
   body: string;
   recap: string;
+  kind: string;
   topic: string;
   mission: string;
   published_at: Date | null;
