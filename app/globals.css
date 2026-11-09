@@ -129,3 +129,11 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
 .rich h3 { font-family: var(--f-display); font-size: 20px; margin-top: 4px; }
 .rich h4 { font-family: var(--f-display); font-size: 17px; margin-top: 4px; }
 .rich hr { border: 0; border-top: 1px dashed var(--line); margin: 4px 0; width: 100%; }
+.seg { display: inline-flex; border: 1.5px solid var(--line); border-radius: 999px; overflow: hidden; flex: none; }
+.seg button { border: 0; background: var(--screen); padding: 5px 10px; font-size: 12.5px; cursor: pointer; color: var(--muted); }
+.seg button + button { border-left: 1.5px solid var(--line); }
+.seg button[aria-pressed="true"][data-v="yes"] { background: var(--ok-soft); color: var(--ok); font-weight: 700; }
+.seg button[aria-pressed="true"][data-v="no"] { background: var(--line); color: var(--ink); font-weight: 700; }
+.seg button[aria-pressed="true"][data-v="none"] { background: var(--wait-soft); color: var(--wait); font-weight: 700; }
+.seg[data-pending] { opacity: .7; }
+.kidrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 2px; border-bottom: 1px solid var(--line); }

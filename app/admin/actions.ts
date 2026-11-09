@@ -145,3 +145,11 @@ export async function saveRecap(weekId: string, form: FormData) {
   await sql`update weeks set recap = ${str(form, "recap", 30000)} where id = ${weekId}`;
   redirect(`/admin/weeks/${weekId}?recap=1`);
 }
+
+/** Teacher sets attendance by hand (e.g. a parent replied by text). */
+export async function setRsvpByTeacher(weekId: string, kidId: string, value: "yes" | "no" | null) {
+  await requireAdmin();
+  await sql`update entries set rsvp = ${value}, attended = ${value !== "no"}, updated_at = now()
+    where week_id = ${weekId} and kid_id = ${kidId}`;
+  revalidatePath(`/admin/weeks/${weekId}`);
+}

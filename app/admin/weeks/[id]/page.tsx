@@ -8,6 +8,7 @@ import { publish, remindNow, publishOnly, sendNotice, deleteWeek, saveRecap } fr
 import { smsConfigured } from "@/lib/sms";
 import { publishText, remindText, noticeText } from "@/lib/notify";
 import SmsButton from "@/components/SmsButton";
+import RsvpToggle from "@/components/RsvpToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -91,7 +92,7 @@ export default async function WeekPage({ params, searchParams }: {
                 <span className="st off">불참 {kids.filter((k) => k.rsvp === "no").length}</span>
                 <span className="st wait">응답 전 {kids.filter((k) => !k.rsvp).length}</span>
               </div>
-              <span className="muted tiny">안내 문자 속 링크에서 엄마가 참석/불참을 누르면 여기와 출석 명단에 바로 반영돼요.</span>
+              <span className="muted tiny">엄마가 링크에서 누르면 자동으로 바뀌어요. 문자로 답이 오면 아래에서 직접 눌러 주세요.</span>
             </div>
             {smsConfigured() ? (
               kids.some((k) => !k.noticed) && (
@@ -102,15 +103,12 @@ export default async function WeekPage({ params, searchParams }: {
             ) : null}
             <ul className="list">
               {kids.map((k) => (
-                <li key={k.id} className="item">
-                  <span><b>{k.name}</b>{" "}
-                    <span className={`st ${k.rsvp === "yes" ? "ok" : k.rsvp === "no" ? "off" : "wait"}`}>
-                      {k.rsvp === "yes" ? "참석" : k.rsvp === "no" ? "불참" : "응답 전"}
-                    </span>
-                  </span>
+                <li key={k.id} className="kidrow">
+                  <b style={{ flex: 1, minWidth: 40 }}>{k.name}</b>
+                  <RsvpToggle weekId={id} kidId={k.id} initial={k.rsvp === "yes" || k.rsvp === "no" ? k.rsvp : null} />
                   {!smsConfigured() && (
                     <SmsButton weekId={id} kidId={k.id} kind="notice" phone={k.phone} sent={k.noticed}
-                      text={noticeText(k, week)} label="안내 보내기" />
+                      text={noticeText(k, week)} label="안내" />
                   )}
                 </li>
               ))}

@@ -25,7 +25,7 @@ export default function SmsButton(props: {
         markManualSent(props.weekId, props.kidId, props.kind).catch(() => {});
       }}
     >
-      {sent ? "✓ 보냄 · 다시" : props.label}
+      {sent ? "✓ 보냄" : props.label}
     </a>
   );
 }
