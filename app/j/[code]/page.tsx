@@ -4,6 +4,7 @@ import { sql, getSettings, type Kid } from "@/lib/db";
 import { formatDate, nick } from "@/lib/brand";
 import ReplyForm from "@/components/ReplyForm";
 import Rsvp from "@/components/Rsvp";
+import RichText from "@/components/RichText";
 import "./journal.css";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 type Row = {
-  id: string; number: number; class_date: Date; place: string; topic: string; mission: string; body: string;
+  id: string; number: number; class_date: Date; place: string; topic: string; mission: string; body: string; recap: string;
   note: string; powers: string[]; reply_id: string | null; reply_body: string | null;
 };
 
@@ -22,7 +23,7 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
   const settings = await getSettings();
 
   const weeks = await sql<Row[]>`
-    select w.id, w.number, w.class_date, w.place, w.topic, w.mission, w.body, e.note, e.powers,
+    select w.id, w.number, w.class_date, w.place, w.topic, w.mission, w.body, w.recap, e.note, e.powers,
            r.id as reply_id, r.body as reply_body
     from weeks w
     join entries e on e.week_id = w.id and e.kid_id = ${kid.id} and e.attended
@@ -109,11 +110,22 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
                   ))}
                 </div>
               )}
-              {w.note && (
+              {w.note && (w.note.length < 200 ? (
                 <div className="note"><span>털보쌤 한마디</span><p>{w.note}</p></div>
-              )}
+              ) : (
+                <div className="longnote">
+                  <span>털보쌤 관찰일지</span>
+                  <RichText text={w.note} />
+                </div>
+              ))}
               {w.powers.length > 0 && (
                 <div className="row"><span className="muted tiny">오늘 기른 힘</span>{w.powers.map((p) => <span className="chip" key={p}>{p}</span>)}</div>
+              )}
+              {w.recap && (
+                <details className="bodybox">
+                  <summary>이날 수업 이야기 전체 보기</summary>
+                  <RichText text={w.recap} />
+                </details>
               )}
               {w.body && (
                 <details className="bodybox">

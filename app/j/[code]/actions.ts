@@ -5,7 +5,7 @@ import { sql, type Kid, type Week } from "@/lib/db";
 import { notifyTeacher } from "@/lib/notify";
 
 export async function submitReply(code: string, weekId: string, form: FormData) {
-  const body = String(form.get("body") ?? "").trim().slice(0, 2000);
+  const body = String(form.get("body") ?? "").trim().slice(0, 10000);
   const photo = form.get("photo");
   if (!body && !(photo instanceof File && photo.size)) return { error: "내용을 적거나 사진을 올려 주세요." };
 

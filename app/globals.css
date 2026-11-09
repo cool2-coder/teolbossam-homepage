@@ -124,3 +124,8 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
 .danger-zone { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 8px; }
 .danger-zone summary { cursor: pointer; color: var(--muted); font-size: 13px; }
 .danger-zone[open] summary { margin-bottom: 10px; }
+.rich { display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.75; overflow-wrap: anywhere; }
+.rich p { margin: 0; white-space: pre-line; }
+.rich h3 { font-family: var(--f-display); font-size: 20px; margin-top: 4px; }
+.rich h4 { font-family: var(--f-display); font-size: 17px; margin-top: 4px; }
+.rich hr { border: 0; border-top: 1px dashed var(--line); margin: 4px 0; width: 100%; }

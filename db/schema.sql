@@ -92,3 +92,6 @@ alter table entries add column if not exists rsvp text;
 
 -- 털보쌤이 쓴 안내문을 그대로 붙여 넣는 칸
 alter table weeks add column if not exists body text not null default '';
+
+-- 수업 후 공통 기록 (모든 아이 일지에 함께 보여요)
+alter table weeks add column if not exists recap text not null default '';

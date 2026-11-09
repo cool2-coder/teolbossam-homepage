@@ -4,7 +4,7 @@ import { sql, isUuid } from "@/lib/db";
 import { weekStats } from "@/lib/queries";
 import { formatDate, formatTime } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
-import { publish, remindNow, publishOnly, sendNotice, deleteWeek } from "../../actions";
+import { publish, remindNow, publishOnly, sendNotice, deleteWeek, saveRecap } from "../../actions";
 import { smsConfigured } from "@/lib/sms";
 import { publishText, remindText, noticeText } from "@/lib/notify";
 import SmsButton from "@/components/SmsButton";
@@ -17,7 +17,7 @@ type KidRow = {
 };
 
 export default async function WeekPage({ params, searchParams }: {
-  params: Promise<{ id: string }>; searchParams: Promise<{ sent?: string; reminded?: string; noticed?: string }>;
+  params: Promise<{ id: string }>; searchParams: Promise<{ sent?: string; reminded?: string; noticed?: string; recap?: string }>;
 }) {
   const { id } = await params;
   const q = await searchParams;
@@ -47,6 +47,8 @@ export default async function WeekPage({ params, searchParams }: {
 
   const toSend = kids.filter((k) => k.attended && !k.notified).length;
   const waiting = kids.filter((k) => k.attended && !k.reply_at).length;
+  let step = 0;
+  const sec = (t: string) => `${++step}. ${t}`;
   const replies = kids.filter((k) => k.reply_at).sort((a, b) => +b.reply_at! - +a.reply_at!);
 
   return (
@@ -54,6 +56,7 @@ export default async function WeekPage({ params, searchParams }: {
       <AdminTop title={`${formatDate(week.class_date)} · ${week.topic}`} back="/admin" />
       <div className="pad">
         {q.sent && <div className="flash">{q.sent}가족에게 일지 문자를 보냈어요.</div>}
+        {q.recap && <div className="flash">수업 기록을 저장했어요.</div>}
         {q.noticed && <div className="flash">{q.noticed}가족에게 수업 안내 문자를 보냈어요.</div>}
         {q.reminded && <div className="flash">{q.reminded}가족에게 재알림을 보냈어요.</div>}
 
@@ -81,7 +84,7 @@ export default async function WeekPage({ params, searchParams }: {
 
         {!week.published_at && (
           <>
-            <p className="sec">1. 수업 전 안내 · 참석 확인</p>
+            <p className="sec">{sec("수업 전 안내 · 참석 확인")}</p>
             <div className="card small">
               <div className="row tnum">
                 <span className="st ok">참석 {kids.filter((k) => k.rsvp === "yes").length}</span>
@@ -115,19 +118,26 @@ export default async function WeekPage({ params, searchParams }: {
           </>
         )}
 
-        <p className="sec">{week.published_at ? "1" : "2"}. 사진 나누기</p>
+        <p className="sec">{sec("사진 나누기")}</p>
         <Link className="btn ghost" href={`/admin/weeks/${id}/photos`}>
           수업 사진 올리고 아이별로 나누기 {total > 0 && `(${total}장${untagged ? `, 이름 없음 ${untagged}` : ""})`}
         </Link>
 
-        <p className="sec">{week.published_at ? "2" : "3"}. 아이별 기록 (수업 후)</p>
+        <p className="sec">{sec("오늘 수업 기록 (모든 아이 일지에 함께 보여요)")}</p>
+        <form action={saveRecap.bind(null, id)} className="stack">
+          <textarea id="recap" name="recap" defaultValue={week.recap} style={{ minHeight: 220 }}
+            placeholder={"오늘의 숲체험, 활동 흐름, 만난 자연 친구들, 가정 연계 활동 등\n쓰신 글을 그대로 붙여 넣으세요."} />
+          <button className="btn ghost">수업 기록 저장</button>
+        </form>
+
+        <p className="sec">{sec("아이별 관찰일지")}</p>
         <ul className="list">
           {kids.map((k) => (
             <li key={k.id}>
               <Link className="item" href={`/admin/weeks/${id}/k/${k.id}`}>
                 <span><b>{k.name}</b>{" "}
                   <span className="muted small">
-                    {k.attended ? `사진 ${k.photos} · 한마디 ${k.note ? "✓" : "–"}` : "결석"}
+                    {k.attended ? `사진 ${k.photos} · 관찰일지 ${k.note ? `✓ ${k.note.length.toLocaleString()}자` : "–"}` : "결석"}
                   </span>
                 </span>
                 {k.attended && week.published_at
@@ -138,7 +148,7 @@ export default async function WeekPage({ params, searchParams }: {
           ))}
         </ul>
 
-        <p className="sec">{week.published_at ? "3" : "4"}. 일지 보내기 (수업 후)</p>
+        <p className="sec">{sec("일지 보내기")}</p>
         {smsConfigured() ? (
           <>
             {toSend > 0 ? (

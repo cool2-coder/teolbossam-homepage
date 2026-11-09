@@ -49,7 +49,7 @@ export async function createWeek(form: FormData) {
   const s = await getSettings();
   const [w] = await sql<{ id: string }[]>`insert into weeks (season, number, class_date, topic, body)
     values (${s.season}, (select coalesce(max(number), 0) + 1 from weeks), ${str(form, "class_date", 10)},
-            ${str(form, "topic", 120) || "오늘의 숲"}, ${str(form, "body", 8000)})
+            ${str(form, "topic", 120) || "오늘의 숲"}, ${str(form, "body", 30000)})
     returning id`;
   await sql`insert into entries (week_id, kid_id) select ${w.id}, id from kids where active`;
   redirect(`/admin/weeks/${w.id}`);
@@ -58,7 +58,7 @@ export async function createWeek(form: FormData) {
 export async function updateWeek(id: string, form: FormData) {
   await requireAdmin();
   await sql`update weeks set class_date = ${str(form, "class_date", 10)}, topic = ${str(form, "topic", 120)},
-    body = ${str(form, "body", 8000)} where id = ${id}`;
+    body = ${str(form, "body", 30000)} where id = ${id}`;
   redirect(`/admin/weeks/${id}`);
 }
 
@@ -72,7 +72,7 @@ export async function saveEntry(weekId: string, kidId: string, nextKidId: string
   await requireAdmin();
   const powers = form.getAll("powers").map(String).filter((p) => POWERS.some((x) => x.name === p));
   await sql`insert into entries (week_id, kid_id, attended, note, powers)
-    values (${weekId}, ${kidId}, ${form.get("attended") === "on"}, ${str(form, "note")}, ${powers})
+    values (${weekId}, ${kidId}, ${form.get("attended") === "on"}, ${str(form, "note", 30000)}, ${powers})
     on conflict (week_id, kid_id) do update set attended = excluded.attended, note = excluded.note,
       powers = excluded.powers, updated_at = now()`;
   revalidatePath(`/admin/weeks/${weekId}`);
@@ -138,4 +138,10 @@ export async function markManualSent(weekId: string, kidId: string, kind: "publi
   await sql`insert into messages (kid_id, week_id, kind, to_phone, body, status)
     values (${kidId}, ${weekId}, ${kind}, ${k.phone}, ${body}, 'manual')`;
   if (kind === "remind") await sql`update weeks set reminded_at = now() where id = ${weekId}`;
+}
+
+export async function saveRecap(weekId: string, form: FormData) {
+  await requireAdmin();
+  await sql`update weeks set recap = ${str(form, "recap", 30000)} where id = ${weekId}`;
+  redirect(`/admin/weeks/${weekId}?recap=1`);
 }

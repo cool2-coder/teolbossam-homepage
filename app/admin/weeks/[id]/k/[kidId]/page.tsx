@@ -34,9 +34,9 @@ export default async function KidEntry({ params }: { params: Promise<{ id: strin
             <label><input type="checkbox" name="attended" defaultChecked={entry?.attended ?? true} /> 오늘 출석</label>
           </div>
           <div className="field">
-            <label className="l" htmlFor="note">털보쌤 한마디</label>
-            <textarea id="note" name="note" defaultValue={entry?.note}
-              placeholder={`${nick(kid.name)}가 오늘 숲에서 한 말, 발견한 것`} />
+            <label className="l" htmlFor="note">{nick(kid.name)} 관찰일지</label>
+            <textarea id="note" name="note" defaultValue={entry?.note} style={{ minHeight: 360 }}
+              placeholder={`${nick(kid.name)}가 오늘 숲에서 한 말, 발견한 것. 쓰신 글을 그대로 붙여 넣어도 돼요. (길이 제한 없음)`} />
           </div>
           <div className="field">
             <span className="l">오늘 기른 힘</span>
