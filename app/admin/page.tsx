@@ -30,7 +30,7 @@ export default async function Dashboard() {
         {cur ? (
           <Link href={`/admin/weeks/${cur.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
             <div className="between">
-              <span className="muted small">{cur.number}주차 · {formatDate(cur.class_date)}</span>
+              <span className="muted small">{formatDate(cur.class_date)}{cur.place ? ` · ${cur.place}` : ""}</span>
               <span className={`st ${cur.published_at ? "ok" : "wait"}`}>{cur.published_at ? "발행됨" : "발행 전"}</span>
             </div>
             <h2 style={{ fontSize: 20 }}>{cur.topic}</h2>
@@ -69,7 +69,7 @@ export default async function Dashboard() {
               {weeks.slice(1).map((w) => (
                 <li key={w.id}>
                   <Link className="item" href={`/admin/weeks/${w.id}`}>
-                    <span>{w.number}주차 · {w.topic}</span>
+                    <span><span className="muted small tnum">{formatDate(w.class_date)}</span> · {w.topic}</span>
                     <span className="muted small tnum">답장 {w.replied}/{w.attended}</span>
                   </Link>
                 </li>

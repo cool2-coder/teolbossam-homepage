@@ -48,7 +48,7 @@ export async function createWeek(form: FormData) {
   await requireAdmin();
   const s = await getSettings();
   const [w] = await sql<{ id: string }[]>`insert into weeks (season, number, class_date, meet_time, place, prep, topic, mission)
-    values (${s.season}, ${Number(form.get("number")) || 1}, ${str(form, "class_date", 10)}, ${str(form, "meet_time", 40)},
+    values (${s.season}, (select coalesce(max(number), 0) + 1 from weeks), ${str(form, "class_date", 10)}, ${str(form, "meet_time", 40)},
             ${str(form, "place", 60)}, ${str(form, "prep", 300)}, ${str(form, "topic", 120) || "오늘의 숲"}, ${str(form, "mission")})
     returning id`;
   await sql`insert into entries (week_id, kid_id) select ${w.id}, id from kids where active`;
@@ -57,7 +57,7 @@ export async function createWeek(form: FormData) {
 
 export async function updateWeek(id: string, form: FormData) {
   await requireAdmin();
-  await sql`update weeks set number = ${Number(form.get("number")) || 1}, class_date = ${str(form, "class_date", 10)},
+  await sql`update weeks set class_date = ${str(form, "class_date", 10)},
     meet_time = ${str(form, "meet_time", 40)}, prep = ${str(form, "prep", 300)}, place = ${str(form, "place", 60)}, topic = ${str(form, "topic", 120)}, mission = ${str(form, "mission")} where id = ${id}`;
   redirect(`/admin/weeks/${id}`);
 }

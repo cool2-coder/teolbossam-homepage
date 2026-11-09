@@ -121,3 +121,6 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
 .toggles label:has(input:checked) { background: var(--pine); border-color: var(--pine); color: var(--pine-ink); font-weight: 700; }
 .toggles label:has(input:focus-visible) { outline: 3px solid var(--acorn); }
 .sorter > .btn.small { align-self: flex-end; }
+.danger-zone { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 8px; }
+.danger-zone summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+.danger-zone[open] summary { margin-bottom: 10px; }

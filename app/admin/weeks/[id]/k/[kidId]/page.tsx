@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { sql, isUuid, type Kid, type Week } from "@/lib/db";
-import { POWERS, nick } from "@/lib/brand";
+import { POWERS, nick, formatDate } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
 import PhotoSorter from "@/components/PhotoSorter";
 import { saveEntry } from "../../../../actions";
@@ -27,7 +27,7 @@ export default async function KidEntry({ params }: { params: Promise<{ id: strin
 
   return (
     <main className="page">
-      <AdminTop title={`${week.number}주차 · ${nick(kid.name)} 기록`} back={`/admin/weeks/${id}`} />
+      <AdminTop title={`${formatDate(week.class_date)} · ${nick(kid.name)} 기록`} back={`/admin/weeks/${id}`} />
       <div className="pad">
         <form action={saveEntry.bind(null, id, kidId, next)} className="stack">
           <div className="toggles">

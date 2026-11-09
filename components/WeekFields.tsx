@@ -1,18 +1,12 @@
 import type { Week } from "@/lib/db";
 import { kstDateString } from "@/lib/brand";
 
-export default function WeekFields({ week, nextNumber = 1 }: { week?: Week; nextNumber?: number }) {
+export default function WeekFields({ week }: { week?: Week }) {
   return (
     <>
-      <div className="row" style={{ flexWrap: "nowrap" }}>
-        <div className="field" style={{ width: 90 }}>
-          <label className="l" htmlFor="number">주차</label>
-          <input id="number" name="number" type="number" min={1} defaultValue={week?.number ?? nextNumber} required />
-        </div>
-        <div className="field" style={{ flex: 1 }}>
-          <label className="l" htmlFor="class_date">수업 날짜</label>
-          <input id="class_date" name="class_date" type="date" defaultValue={kstDateString(week?.class_date)} required />
-        </div>
+      <div className="field">
+        <label className="l" htmlFor="class_date">수업 날짜</label>
+        <input id="class_date" name="class_date" type="date" defaultValue={kstDateString(week?.class_date)} required />
       </div>
       <div className="row" style={{ flexWrap: "nowrap" }}>
         <div className="field" style={{ width: 130 }}>

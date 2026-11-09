@@ -4,7 +4,7 @@ import { sql, isUuid } from "@/lib/db";
 import { weekStats } from "@/lib/queries";
 import { formatDate, formatTime } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
-import { publish, remindNow, publishOnly, sendNotice } from "../../actions";
+import { publish, remindNow, publishOnly, sendNotice, deleteWeek } from "../../actions";
 import { smsConfigured } from "@/lib/sms";
 import { publishText, remindText, noticeText } from "@/lib/notify";
 import SmsButton from "@/components/SmsButton";
@@ -51,7 +51,7 @@ export default async function WeekPage({ params, searchParams }: {
 
   return (
     <main className="page">
-      <AdminTop title={`${week.number}주차 · ${week.topic}`} back="/admin" />
+      <AdminTop title={`${formatDate(week.class_date)} · ${week.topic}`} back="/admin" />
       <div className="pad">
         {q.sent && <div className="flash">{q.sent}가족에게 일지 문자를 보냈어요.</div>}
         {q.noticed && <div className="flash">{q.noticed}가족에게 수업 안내 문자를 보냈어요.</div>}
@@ -198,6 +198,15 @@ export default async function WeekPage({ params, searchParams }: {
             ))}
           </>
         )}
+        <details className="danger-zone">
+          <summary>이 수업 지우기</summary>
+          <form action={deleteWeek.bind(null, id)} className="stack">
+            <p className="small" style={{ margin: 0 }}>
+              잘못 만든 수업이면 지워 주세요. 이 수업의 사진, 기록, 답장, 참석 응답이 모두 지워지고 되돌릴 수 없어요.
+            </p>
+            <button className="btn danger">정말 지우기</button>
+          </form>
+        </details>
       </div>
     </main>
   );

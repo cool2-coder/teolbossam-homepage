@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { sql, isUuid, type Week } from "@/lib/db";
+import { formatDate } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
 import WeekFields from "@/components/WeekFields";
 import { updateWeek, deleteWeek } from "../../../actions";
@@ -13,7 +14,7 @@ export default async function EditWeek({ params }: { params: Promise<{ id: strin
   if (!week) notFound();
   return (
     <main className="page">
-      <AdminTop title={`${week.number}주차 고치기`} back={`/admin/weeks/${id}`} />
+      <AdminTop title={`${formatDate(week.class_date)} 수업 고치기`} back={`/admin/weeks/${id}`} />
       <div className="pad">
         <form action={updateWeek.bind(null, id)} className="stack">
           <WeekFields week={week} />
