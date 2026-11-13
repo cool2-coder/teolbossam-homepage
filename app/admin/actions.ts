@@ -36,9 +36,9 @@ export async function addKid(form: FormData) {
   if (!name) return;
   const code = crypto.randomBytes(6).toString("base64url");
   const classes = classesOf(form);
-  const [kid] = await sql<{ id: string }[]>`insert into kids (name, guardian_label, phone, code, classes, birth_year, gender, call_name)
+  const [kid] = await sql<{ id: string }[]>`insert into kids (name, guardian_label, phone, code, classes, birth_year, gender, call_name, caution)
     values (${name}, ${str(form, "guardian_label", 10) || "어머님"}, ${str(form, "phone", 20)}, ${code}, ${classes},
-            ${birthYear(form)}, ${genderOf(form)}, ${str(form, "call_name", 20)}) returning id`;
+            ${birthYear(form)}, ${genderOf(form)}, ${str(form, "call_name", 20)}, ${str(form, "caution", 300)}) returning id`;
   // Add to this kid's upcoming classes.
   await sql`insert into entries (week_id, kid_id) select id, ${kid.id} from weeks
     where published_at is null and kind = any(${classes}) on conflict do nothing`;
@@ -49,7 +49,7 @@ export async function updateKid(id: string, form: FormData) {
   await requireAdmin();
   await sql`update kids set name = ${str(form, "name", 30)}, guardian_label = ${str(form, "guardian_label", 10) || "어머님"},
     phone = ${str(form, "phone", 20)}, classes = ${classesOf(form)}, birth_year = ${birthYear(form)},
-    gender = ${genderOf(form)}, call_name = ${str(form, "call_name", 20)} where id = ${id}`;
+    gender = ${genderOf(form)}, call_name = ${str(form, "call_name", 20)}, caution = ${str(form, "caution", 300)} where id = ${id}`;
   revalidatePath("/admin/kids");
 }
 
@@ -67,8 +67,19 @@ export async function createWeek(form: FormData) {
     values (${s.season}, (select coalesce(max(number), 0) + 1 from weeks), ${kindOf(str(form, "kind", 10))}, ${str(form, "class_date", 10)},
             ${str(form, "topic", 120) || "오늘의 숲"}, ${str(form, "body", 30000)})
     returning id`;
-  await sql`insert into entries (week_id, kid_id) select ${w.id}, id from kids
-    where active and ${kindOf(str(form, "kind", 10))} = any(classes)`;
+  const kind = kindOf(str(form, "kind", 10));
+  // Kids registered for this class type in the term covering the class date; otherwise the roster's 듣는 수업.
+  const fromTerm = await sql`
+    insert into entries (week_id, kid_id)
+    select distinct ${w.id}::uuid, en.kid_id from enrollments en
+    join terms t on t.id = en.term_id
+    join kids k on k.id = en.kid_id and k.active
+    where en.kind = ${kind} and ${str(form, "class_date", 10)}::date between t.start_date and t.end_date
+    on conflict do nothing`;
+  if (fromTerm.count === 0) {
+    await sql`insert into entries (week_id, kid_id) select ${w.id}, id from kids
+      where active and ${kind} = any(classes)`;
+  }
   redirect(`/admin/weeks/${w.id}`);
 }
 
@@ -204,4 +215,60 @@ export async function deleteAllMessages() {
   await requireAdmin();
   await sql`delete from messages`;
   redirect("/admin/messages?cleared=1");
+}
+
+/* 모집 기수 */
+export async function createTerm(form: FormData) {
+  await requireAdmin();
+  const [t] = await sql<{ id: string }[]>`insert into terms (name, start_date, end_date)
+    values (${str(form, "name", 40) || "새 기수"}, ${str(form, "start_date", 10)}, ${str(form, "end_date", 10)}) returning id`;
+  redirect(`/admin/terms/${t.id}`);
+}
+
+export async function updateTerm(id: string, form: FormData) {
+  await requireAdmin();
+  await sql`update terms set name = ${str(form, "name", 40)}, start_date = ${str(form, "start_date", 10)},
+    end_date = ${str(form, "end_date", 10)} where id = ${id}`;
+  redirect(`/admin/terms/${id}`);
+}
+
+export async function deleteTerm(id: string) {
+  await requireAdmin();
+  await sql`delete from terms where id = ${id}`;
+  redirect("/admin/terms");
+}
+
+/** Who is registered for one class type in this term. Upcoming classes of that type follow along. */
+export async function setEnrollments(termId: string, kind: string, form: FormData) {
+  await requireAdmin();
+  if (!isKind(kind)) return;
+  const ids = form.getAll("kid").map(String).filter(isUuid);
+  const [t] = await sql<{ start_date: Date; end_date: Date }[]>`select start_date, end_date from terms where id = ${termId}`;
+  if (!t) return;
+  const before = (await sql<{ kid_id: string }[]>`select kid_id from enrollments where term_id = ${termId} and kind = ${kind}`)
+    .map((r) => r.kid_id);
+  const added = ids.filter((i) => !before.includes(i));
+  const removed = before.filter((i) => !ids.includes(i));
+  if (added.length) {
+    await sql`insert into enrollments (term_id, kid_id, kind) select ${termId}, id, ${kind} from kids where id in ${sql(added)}
+      on conflict do nothing`;
+    await sql`insert into entries (week_id, kid_id)
+      select w.id, k.id from weeks w, kids k
+      where k.id in ${sql(added)} and w.kind = ${kind} and w.published_at is null
+        and w.class_date between ${t.start_date} and ${t.end_date}
+      on conflict do nothing`;
+  }
+  if (removed.length) {
+    await sql`delete from enrollments where term_id = ${termId} and kind = ${kind} and kid_id in ${sql(removed)}`;
+    await sql`delete from entries e using weeks w
+      where e.week_id = w.id and e.kid_id in ${sql(removed)} and w.kind = ${kind} and w.published_at is null
+        and w.class_date between ${t.start_date} and ${t.end_date}`;
+  }
+  redirect(`/admin/terms/${termId}?saved=${kind}`);
+}
+
+export async function setPaid(termId: string, kidId: string, kind: string, paid: boolean) {
+  await requireAdmin();
+  await sql`update enrollments set paid = ${paid} where term_id = ${termId} and kid_id = ${kidId} and kind = ${kind}`;
+  revalidatePath(`/admin/terms/${termId}`);
 }

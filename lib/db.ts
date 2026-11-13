@@ -23,6 +23,7 @@ export type Kid = {
   gender: string | null;
   call_name: string;
   photo_id: string | null;
+  caution: string;
 };
 
 export type Week = {
@@ -59,3 +60,14 @@ export async function setSetting(key: string, value: string) {
 }
 
 export const isUuid = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+
+export type Term = { id: string; name: string; start_date: Date; end_date: Date };
+
+/** The term running today, otherwise the most recent one. */
+export async function currentTerm(): Promise<Term | undefined> {
+  const [t] = await sql<Term[]>`
+    select * from terms
+    order by ((now() at time zone 'Asia/Seoul')::date between start_date and end_date) desc, start_date desc
+    limit 1`;
+  return t;
+}

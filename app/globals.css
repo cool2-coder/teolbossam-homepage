@@ -162,3 +162,6 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
 .kidsum::-webkit-details-marker { display: none; }
 .avatar { border-radius: 50%; object-fit: cover; flex: none; display: inline-grid; place-items: center; }
 .avatar.empty { background: var(--pine-soft); color: var(--pine); font-family: var(--f-display); }
+.caution { color: var(--bad); font-size: 12.5px; font-weight: 700; }
+.cautionbox { border: 1.5px solid var(--bad); border-radius: 12px; padding: 10px 12px; font-size: 13.5px; display: flex; flex-direction: column; gap: 4px; }
+.cautionbox b { color: var(--bad); }

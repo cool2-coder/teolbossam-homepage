@@ -54,7 +54,11 @@ function KidFields({ kid }: { kid?: Kid }) {
         </div>
       </div>
       <div className="field">
-        <span className="l">듣는 수업 (새 수업을 만들 때 자동으로 들어가요)</span>
+        <label className="l" htmlFor={`ca-${p}`}>주의사항 (알레르기, 건강 등)</label>
+        <input id={`ca-${p}`} name="caution" type="text" defaultValue={kid?.caution} placeholder="예: 땅콩 알레르기, 벌 쏘임 주의" />
+      </div>
+      <div className="field">
+        <span className="l">듣는 수업 (기수 등록이 없을 때 새 수업에 자동으로 들어가요)</span>
         <div className="toggles">
           {Object.entries(CLASS_KINDS).map(([k, v]) => (
             <label key={k} data-kind={k}>
@@ -107,7 +111,8 @@ export default async function Kids() {
                     <div className="between">
                       <span className="row" style={{ flexWrap: "nowrap" }}>
                         <Avatar photoId={k.photo_id} name={k.name} size={36} />
-                        <span><b>{k.name}</b> <span className="muted small">{kidInfo(k)}</span></span>
+                        <span><b>{k.name}</b> <span className="muted small">{kidInfo(k)}</span>
+                          {k.caution && <span className="caution"> ⚠ {k.caution}</span>}</span>
                       </span>
                       <span className="muted">›</span>
                     </div>

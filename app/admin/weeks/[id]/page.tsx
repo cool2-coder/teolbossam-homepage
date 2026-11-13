@@ -13,7 +13,7 @@ import RsvpToggle from "@/components/RsvpToggle";
 export const dynamic = "force-dynamic";
 
 type KidRow = {
-  id: string; name: string; guardian_label: string; phone: string; code: string; call_name: string; reminded: boolean; noticed: boolean; rsvp: string | null; attended: boolean; note: string; photos: number;
+  id: string; name: string; guardian_label: string; phone: string; code: string; call_name: string; caution: string; reminded: boolean; noticed: boolean; rsvp: string | null; attended: boolean; note: string; photos: number;
   reply_body: string | null; reply_at: Date | null; reply_photo: string | null; notified: boolean;
 };
 
@@ -27,7 +27,7 @@ export default async function WeekPage({ params, searchParams }: {
   if (!week) notFound();
 
   const kids = await sql<KidRow[]>`
-    select k.id, k.name, k.call_name, k.guardian_label, k.phone, k.code, e.attended, e.note, e.rsvp,
+    select k.id, k.name, k.call_name, k.caution, k.guardian_label, k.phone, k.code, e.attended, e.note, e.rsvp,
       exists (select 1 from messages m where m.week_id = ${id} and m.kid_id = k.id and m.kind = 'notice'
               and m.status in ('sent','manual')) as noticed,
       exists (select 1 from messages m where m.week_id = ${id} and m.kid_id = k.id and m.kind = 'remind'
@@ -87,6 +87,15 @@ export default async function WeekPage({ params, searchParams }: {
             </>
           )}
         </div>
+
+        {kids.some((k) => k.attended && k.caution) && (
+          <div className="cautionbox">
+            <b>⚠ 주의할 아이</b>
+            {kids.filter((k) => k.attended && k.caution).map((k) => (
+              <span key={k.id}><b style={{ color: "inherit" }}>{k.name}</b> · {k.caution}</span>
+            ))}
+          </div>
+        )}
 
         <details className="card">
           <summary className="between" style={{ cursor: "pointer" }}>

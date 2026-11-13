@@ -109,3 +109,25 @@ alter table kids add column if not exists call_name text not null default '';
 
 -- 아이 대표 프로필 사진
 alter table kids add column if not exists photo_id uuid references photos(id) on delete set null;
+
+-- 모집 기수 (예: 11·12월 숲) 와 기수별 등록·입금
+create table if not exists terms (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  start_date date not null,
+  end_date date not null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists enrollments (
+  term_id uuid not null references terms(id) on delete cascade,
+  kid_id uuid not null references kids(id) on delete cascade,
+  kind text not null,
+  paid boolean not null default false,
+  fee int,
+  created_at timestamptz not null default now(),
+  primary key (term_id, kid_id, kind)
+);
+
+-- 아이 주의사항 (알레르기 등). 수업 화면에 ⚠ 로 보여요.
+alter table kids add column if not exists caution text not null default '';

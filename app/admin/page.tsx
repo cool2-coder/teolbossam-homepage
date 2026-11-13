@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { sql, getSettings } from "@/lib/db";
+import { sql, getSettings, currentTerm } from "@/lib/db";
 import { weekStats } from "@/lib/queries";
 import { formatDate, WEEKDAYS, CLASS_KINDS, kindOf, type ClassKind } from "@/lib/brand";
 import type { WeekStat } from "@/lib/queries";
@@ -20,6 +20,16 @@ export default async function Dashboard() {
   };
   const current = (Object.keys(CLASS_KINDS) as ClassKind[]).map((k) => [k, pick(k)] as const);
   const shown = new Set(current.map(([, w]) => w?.id));
+  const term = await currentTerm();
+  const termStats = term
+    ? (await sql<{ kids: number; unpaid: number; recontact: number }[]>`
+        select
+          (select count(distinct kid_id)::int from enrollments where term_id = ${term.id}) as kids,
+          (select count(*)::int from enrollments where term_id = ${term.id} and not paid) as unpaid,
+          (select count(distinct e.kid_id)::int from enrollments e
+             where e.term_id = (select id from terms where start_date < ${term.start_date} order by start_date desc limit 1)
+               and e.kid_id not in (select kid_id from enrollments where term_id = ${term.id})) as recontact`)[0]
+    : null;
 
   return (
     <main className="page">
@@ -34,6 +44,19 @@ export default async function Dashboard() {
           </div>
           <form action={logout}><button className="btn ghost small">나가기</button></form>
         </div>
+
+        {term && termStats ? (
+          <Link href={`/admin/terms/${term.id}`} className="card" style={{ textDecoration: "none", color: "inherit" }}>
+            <div className="between"><b>{term.name}</b><span className="muted">›</span></div>
+            <div className="row small tnum">
+              <span className="st ok">등록 {termStats.kids}명</span>
+              <span className={`st ${termStats.unpaid ? "wait" : "ok"}`}>입금 대기 {termStats.unpaid}</span>
+              <span className={`st ${termStats.recontact ? "wait" : "ok"}`}>재등록 연락 {termStats.recontact}</span>
+            </div>
+          </Link>
+        ) : (
+          <Link href="/admin/terms" className="btn ghost">+ 이번 모집 기수 만들기 (등록·입금 관리)</Link>
+        )}
 
         <div className="kcards">
           {current.map(([k, w]) => (
@@ -55,6 +78,7 @@ export default async function Dashboard() {
         </div>
 
         <ul className="list">
+          <li><Link className="item" href="/admin/terms"><span>모집 기수 · 등록 · 입금</span><span className="muted">›</span></Link></li>
           <li><Link className="item" href="/admin/kids"><span>아이 명단</span><span className="muted">{kidCount}명 ›</span></Link></li>
           <li><Link className="item" href="/admin/messages"><span>문자 기록</span><span className="muted">›</span></Link></li>
           <li><Link className="item" href="/admin/settings"><span>설정</span><span className="muted">›</span></Link></li>
