@@ -7,6 +7,7 @@ import AdminTop from "@/components/AdminTop";
 import { publish, remindNow, publishOnly, sendNotice, deleteWeek, saveRecap, setWeekKids, closeWeek, reopenWeek } from "../../actions";
 import { smsConfigured } from "@/lib/sms";
 import { publishText, remindText, noticeText } from "@/lib/notify";
+import { getTemplates } from "@/lib/templates";
 import SmsButton from "@/components/SmsButton";
 import RsvpToggle from "@/components/RsvpToggle";
 
@@ -51,6 +52,7 @@ export default async function WeekPage({ params, searchParams }: {
   const allKids = await sql<{ id: string; name: string; classes: string[] }[]>`
     select id, name, classes from kids where active order by name`;
   const inClass = new Set(kids.map((k) => k.id));
+  const tpl = await getTemplates();
   let step = 0;
   const sec = (t: string) => `${++step}. ${t}`;
   const replies = kids.filter((k) => k.reply_at).sort((a, b) => +b.reply_at! - +a.reply_at!);
@@ -148,7 +150,7 @@ export default async function WeekPage({ params, searchParams }: {
                   <RsvpToggle weekId={id} kidId={k.id} initial={k.rsvp === "yes" || k.rsvp === "no" ? k.rsvp : null} />
                   {!smsConfigured() && (
                     <SmsButton weekId={id} kidId={k.id} kind="notice" phone={k.phone} sent={k.noticed}
-                      text={noticeText(k, week)} label="안내" />
+                      text={noticeText(k, week, tpl)} label="안내" />
                   )}
                 </li>
               ))}
@@ -218,7 +220,7 @@ export default async function WeekPage({ params, searchParams }: {
                 <li key={k.id} className="item">
                   <span><b>{k.name}</b> <span className="muted small">{k.guardian_label}</span></span>
                   <SmsButton weekId={id} kidId={k.id} kind="publish" phone={k.phone} sent={k.notified}
-                    text={publishText(k, week)} label="문자 보내기" />
+                    text={publishText(k, week, tpl)} label="문자 보내기" />
                 </li>
               ))}
             </ul>
@@ -230,7 +232,7 @@ export default async function WeekPage({ params, searchParams }: {
                     <li key={k.id} className="item">
                       <span><b>{k.name}</b> <span className="muted small">{k.guardian_label}</span></span>
                       <SmsButton weekId={id} kidId={k.id} kind="remind" phone={k.phone} sent={k.reminded}
-                        text={remindText(k, week)} label="재알림" />
+                        text={remindText(k, week, tpl)} label="재알림" />
                     </li>
                   ))}
                 </ul>

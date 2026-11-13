@@ -1,53 +1,43 @@
 import { sql, type Kid, type Week } from "./db";
 import { sendSms } from "./sms";
 import { siteUrl, formatDate, nick, callName } from "./brand";
+import { getTemplates, fill, type Templates } from "./templates";
 
 
 type KidLike = Pick<Kid, "name" | "guardian_label" | "code"> & { call_name?: string | null };
-type WeekLike = Pick<Week, "topic">;
-type NoticeWeek = Pick<Week, "topic" | "class_date" | "meet_time" | "place" | "prep" | "body">;
+type WeekLike = Pick<Week, "topic" | "class_date">;
+type NoticeWeek = WeekLike & Pick<Week, "body">;
 
-export function publishText(k: KidLike, w: WeekLike) {
-  return (
-    `[털보쌤 숲체험] ${nick(callName(k))}의 오늘 숲 일지가 올라왔어요 🌳\n` +
-    `‘${w.topic}’ 시간에 찍은 사진과 털보쌤 이야기를 보러 와 주세요.\n` +
-    `집에서 아이에게 한마디 들으시면 답장도 남겨 주세요 ^^\n${siteUrl()}/j/${k.code}`
-  );
+function vars(k: KidLike, w: WeekLike): Record<string, string> {
+  const n = callName(k);
+  return { 이름: n, 아이: nick(n), 호칭: k.guardian_label, 주제: w.topic, 날짜: formatDate(w.class_date), 링크: `${siteUrl()}/j/${k.code}` };
 }
 
-export function noticeText(k: KidLike, w: NoticeWeek) {
-  const link = `${siteUrl()}/j/${k.code}`;
-  if (w.body.trim()) return `${w.body.trim()}\n\n▶ ${nick(callName(k))} 참석 여부를 눌러 주세요\n${link}`;
-  const lines = [
-    `[털보쌤 숲체험] ${callName(k)} ${k.guardian_label}, 이번 숲체험 안내드려요.`,
-    `일시: ${formatDate(w.class_date)}${w.meet_time ? ` ${w.meet_time}` : ""}`,
-    w.place && `장소: ${w.place}`,
-    `주제: ${w.topic}`,
-    w.prep && `준비물: ${w.prep}`,
-    `참석 여부를 눌러 주세요.`,
-    link,
-  ];
-  return lines.filter(Boolean).join("\n");
+export function publishText(k: KidLike, w: WeekLike, t: Templates) {
+  return fill(t.publish, vars(k, w));
 }
 
-export function remindText(k: KidLike, w: WeekLike) {
-  return (
-    `[털보쌤 숲체험] ${nick(callName(k))}는 ‘${w.topic}’ 이야기를 집에서도 했을까요? 🙂\n` +
-    `편하실 때 숲 일지에 한마디 남겨 주시면 털보쌤이 반갑게 읽을게요.\n${siteUrl()}/j/${k.code}`
-  );
+export function noticeText(k: KidLike, w: NoticeWeek, t: Templates) {
+  if (w.body.trim()) return `${w.body.trim()}\n\n${fill(t.notice, vars(k, w))}`;
+  return fill(t.notice_plain, vars(k, w));
+}
+
+export function remindText(k: KidLike, w: WeekLike, t: Templates) {
+  return fill(t.remind, vars(k, w));
 }
 
 /** Sends the "journal is up" text to every attending kid who hasn't been told yet for this week. */
 export async function publishWeek(weekId: string) {
   const [week] = await sql<Week[]>`select * from weeks where id = ${weekId}`;
   if (!week) return 0;
+  const t = await getTemplates();
   const kids = await sql<Kid[]>`
     select k.* from kids k join entries e on e.kid_id = k.id and e.week_id = ${weekId}
     where k.active and e.attended
       and not exists (select 1 from messages m where m.week_id = ${weekId} and m.kid_id = k.id
                       and m.kind = 'publish' and m.status in ('sent','manual'))`;
   for (const k of kids) {
-    await sendSms({ to: k.phone, text: publishText(k, week), kind: "publish", kidId: k.id, weekId });
+    await sendSms({ to: k.phone, text: publishText(k, week, t), kind: "publish", kidId: k.id, weekId });
   }
   await sql`update weeks set published_at = coalesce(published_at, now()) where id = ${weekId}`;
   return kids.length;
@@ -57,12 +47,13 @@ export async function publishWeek(weekId: string) {
 export async function remindWeek(weekId: string) {
   const [week] = await sql<Week[]>`select * from weeks where id = ${weekId}`;
   if (!week?.published_at) return 0;
+  const t = await getTemplates();
   const kids = await sql<Kid[]>`
     select k.* from kids k join entries e on e.kid_id = k.id and e.week_id = ${weekId}
     where k.active and e.attended
       and not exists (select 1 from replies r where r.week_id = ${weekId} and r.kid_id = k.id)`;
   for (const k of kids) {
-    await sendSms({ to: k.phone, text: remindText(k, week), kind: "remind", kidId: k.id, weekId });
+    await sendSms({ to: k.phone, text: remindText(k, week, t), kind: "remind", kidId: k.id, weekId });
   }
   await sql`update weeks set reminded_at = now() where id = ${weekId}`;
   return kids.length;
@@ -72,12 +63,13 @@ export async function remindWeek(weekId: string) {
 export async function noticeWeek(weekId: string) {
   const [week] = await sql<Week[]>`select * from weeks where id = ${weekId}`;
   if (!week) return 0;
+  const t = await getTemplates();
   const kids = await sql<Kid[]>`
     select k.* from kids k join entries e on e.kid_id = k.id and e.week_id = ${weekId}
     where k.active and not exists (select 1 from messages m where m.week_id = ${weekId} and m.kid_id = k.id
                       and m.kind = 'notice' and m.status in ('sent','manual'))`;
   for (const k of kids) {
-    await sendSms({ to: k.phone, text: noticeText(k, week), kind: "notice", kidId: k.id, weekId });
+    await sendSms({ to: k.phone, text: noticeText(k, week, t), kind: "notice", kidId: k.id, weekId });
   }
   return kids.length;
 }

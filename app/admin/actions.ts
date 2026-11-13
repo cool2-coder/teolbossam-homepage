@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { sql, getSettings, setSetting, isUuid, type Week } from "@/lib/db";
 import { requireAdmin, ADMIN_COOKIE } from "@/lib/auth";
 import { setProfile } from "@/lib/profile";
+import { getTemplates, TEMPLATES, type TemplateKey } from "@/lib/templates";
 import { publishWeek, remindWeek, noticeWeek, publishText, remindText, noticeText } from "@/lib/notify";
 import { POWERS, kindOf, isKind } from "@/lib/brand";
 
@@ -162,7 +163,8 @@ export async function markManualSent(weekId: string, kidId: string, kind: "publi
     select phone, name, guardian_label, code from kids where id = ${kidId}`;
   const [w] = await sql<Week[]>`select * from weeks where id = ${weekId}`;
   if (!k || !w) return;
-  const body = kind === "publish" ? publishText(k, w) : kind === "notice" ? noticeText(k, w) : remindText(k, w);
+  const t = await getTemplates();
+  const body = kind === "publish" ? publishText(k, w, t) : kind === "notice" ? noticeText(k, w, t) : remindText(k, w, t);
   await sql`insert into messages (kid_id, week_id, kind, to_phone, body, status)
     values (${kidId}, ${weekId}, ${kind}, ${k.phone}, ${body}, 'manual')`;
   if (kind === "remind") await sql`update weeks set reminded_at = now() where id = ${weekId}`;
@@ -319,4 +321,20 @@ export async function saveRecontactText(termId: string, form: FormData) {
   await requireAdmin();
   await sql`update terms set recontact_text = ${str(form, "recontact_text", 2000)} where id = ${termId}`;
   redirect(`/admin/terms/${termId}/recontact?saved=1`);
+}
+
+/* 문자 문구 고치기 */
+export async function saveTemplate(key: string, form: FormData) {
+  await requireAdmin();
+  if (!(key in TEMPLATES)) return;
+  const text = str(form, "text", 3000);
+  if (text && text !== TEMPLATES[key as TemplateKey].text) await setSetting(`msg_${key}`, text);
+  else await sql`delete from settings where key = ${"msg_" + key}`;
+  redirect(`/admin/templates?saved=${key}#${key}`);
+}
+
+export async function resetTemplate(key: string) {
+  await requireAdmin();
+  await sql`delete from settings where key = ${"msg_" + key}`;
+  redirect(`/admin/templates?reset=${key}#${key}`);
 }

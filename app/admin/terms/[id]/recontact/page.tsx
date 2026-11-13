@@ -1,20 +1,17 @@
 import { notFound } from "next/navigation";
 import { sql, isUuid, type Term } from "@/lib/db";
-import { CLASS_KINDS, kindOf, callName, kidInfo } from "@/lib/brand";
+import { CLASS_KINDS, kindOf, callName, kidInfo, nick } from "@/lib/brand";
 import { termSummary } from "@/lib/terms";
 import AdminTop from "@/components/AdminTop";
 import RecontactRow from "@/components/RecontactRow";
 import { Avatar } from "@/components/ProfilePhoto";
 import { saveRecontactText } from "../../../actions";
+import { getTemplates, fill as fillTpl } from "@/lib/templates";
 
 export const dynamic = "force-dynamic";
 
 type K = { id: string; name: string; call_name: string; guardian_label: string; phone: string; photo_id: string | null;
   birth_year: number | null; gender: string | null };
-
-const DEFAULT_TEXT =
-  "[털보쌤 숲체험] {이름} {호칭}, 안녕하세요 🌳\n{기수} 모집을 시작했어요.\n" +
-  "지난 기수 함께해 주셔서 정말 고마웠어요. 이번에도 {아이}와 숲에서 만나고 싶어요.\n편하실 때 참여 여부 알려 주세요 ^^";
 
 export default async function Recontact({ params, searchParams }: {
   params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }>;
@@ -25,7 +22,8 @@ export default async function Recontact({ params, searchParams }: {
   const [term] = await sql<(Term & { recontact_text: string })[]>`select * from terms where id = ${id}`;
   if (!term) notFound();
   const sum = await termSummary(term);
-  const text = term.recontact_text || DEFAULT_TEXT;
+  const t = await getTemplates();
+  const text = term.recontact_text || t.recontact;
 
   if (!sum.prev) {
     return (
@@ -49,9 +47,7 @@ export default async function Recontact({ params, searchParams }: {
 
   const fill = (k: K) => {
     const n = callName(k);
-    const c = n.charCodeAt(n.length - 1);
-    const withI = c >= 0xac00 && c <= 0xd7a3 && (c - 0xac00) % 28 !== 0 ? `${n}이` : n;
-    return text.replaceAll("{이름}", n).replaceAll("{아이}", withI).replaceAll("{호칭}", k.guardian_label).replaceAll("{기수}", term.name);
+    return fillTpl(text, { 이름: n, 아이: nick(n), 호칭: k.guardian_label, 기수: term.name });
   };
 
   return (
@@ -70,7 +66,7 @@ export default async function Recontact({ params, searchParams }: {
         </div>
 
         <details className="card">
-          <summary className="small" style={{ cursor: "pointer" }}><b>보낼 문구 고치기</b></summary>
+          <summary className="small" style={{ cursor: "pointer" }}><b>이 기수만 문구 고치기</b> <span className="muted tiny">(모든 기수 기본 문구는 ‘문자 문구 고치기’에서)</span></summary>
           <form action={saveRecontactText.bind(null, id)} className="stack" style={{ marginTop: 10 }}>
             <textarea id="recontact_text" name="recontact_text" defaultValue={text} style={{ minHeight: 160 }} />
             <span className="muted tiny">{"{이름}"}은 아이 이름(서윤), {"{아이}"}는 부르는 말(서윤이), {"{호칭}"}은 어머님, {"{기수}"}는 ‘{term.name}’로 바뀌어요.</span>

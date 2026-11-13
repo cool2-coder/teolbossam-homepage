@@ -81,6 +81,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <li><Link className="item" href="/admin/terms"><span>모집 기수 · 등록 · 입금</span><span className="muted">›</span></Link></li>
           <li><Link className="item" href="/admin/kids"><span>아이 명단</span><span className="muted">{kidCount}명 ›</span></Link></li>
           <li><Link className="item" href="/admin/closed"><span>종료된 수업</span><span className="muted">{closedCount}개 ›</span></Link></li>
+          <li><Link className="item" href="/admin/templates"><span>문자 문구 고치기</span><span className="muted">›</span></Link></li>
           <li><Link className="item" href="/admin/messages"><span>문자 기록</span><span className="muted">›</span></Link></li>
           <li><Link className="item" href="/admin/settings"><span>설정</span><span className="muted">›</span></Link></li>
         </ul>
