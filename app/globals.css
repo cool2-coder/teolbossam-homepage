@@ -156,6 +156,3 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
 .kcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .kband { height: 6px; background: var(--k); }
 .toggles label[data-kind]:has(input:checked) { background: var(--k); border-color: var(--k); }
-.btn.kakao { background: #fee500; color: #191919; }
-.btn.kakao.small { width: auto; }
-.howto { font-size: 12.5px; color: var(--muted); margin: 0; padding-left: 18px; }

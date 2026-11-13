@@ -4,10 +4,9 @@ import { sql, isUuid } from "@/lib/db";
 import { weekStats } from "@/lib/queries";
 import { formatDate, formatTime, kindOf, kindLabel } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
-import { publish, remindNow, publishOnly, sendNotice, deleteWeek, saveRecap, setWeekKids, markSharedSent } from "../../actions";
+import { publish, remindNow, publishOnly, sendNotice, deleteWeek, saveRecap, setWeekKids } from "../../actions";
 import { smsConfigured } from "@/lib/sms";
-import { publishText, remindText, noticeText, commonNoticeText, commonPublishText, commonRemindText } from "@/lib/notify";
-import ShareButton from "@/components/ShareButton";
+import { publishText, remindText, noticeText } from "@/lib/notify";
 import SmsButton from "@/components/SmsButton";
 import RsvpToggle from "@/components/RsvpToggle";
 
@@ -117,10 +116,8 @@ export default async function WeekPage({ params, searchParams }: {
                 <span className="st off">불참 {kids.filter((k) => k.rsvp === "no").length}</span>
                 <span className="st wait">응답 전 {kids.filter((k) => !k.rsvp).length}</span>
               </div>
-              <span className="muted tiny">엄마가 링크에서 누르면 자동으로 바뀌어요. 카톡이나 문자로 답이 오면 아래에서 직접 눌러 주세요.</span>
+              <span className="muted tiny">엄마가 링크에서 누르면 자동으로 바뀌어요. 문자로 답이 오면 아래에서 직접 눌러 주세요.</span>
             </div>
-            <KakaoBlock weekId={id} kind="notice" text={commonNoticeText(week)}
-              who={kids.map((k) => ({ id: k.id, name: k.name, done: k.noticed }))} label="카톡으로 안내 한 번에 보내기" />
             {smsConfigured() ? (
               kids.some((k) => !k.noticed) && (
                 <form action={sendNotice.bind(null, id)}>
@@ -192,14 +189,12 @@ export default async function WeekPage({ params, searchParams }: {
         ) : !week.published_at ? (
           <form action={publishOnly.bind(null, id)} className="stack">
             <button className="btn">발행하기 (학부모님 일지에 공개)</button>
-            <p className="muted tiny" style={{ margin: 0 }}>발행하면 [카톡으로 한 번에 보내기]와 아이별 [문자 보내기] 버튼이 생겨요.</p>
+            <p className="muted tiny" style={{ margin: 0 }}>발행하면 아이별 [문자 보내기] 버튼이 생겨요. 누르면 폰 문자 앱에 번호와 내용이 채워져 열려요.</p>
           </form>
         ) : (
           <>
-            <KakaoBlock weekId={id} kind="publish" text={commonPublishText(week)}
-              who={kids.filter((k) => k.attended).map((k) => ({ id: k.id, name: k.name, done: k.notified }))} label="카톡으로 일지 알림 한 번에 보내기" />
             <div className="card small">
-              <b>문자로 하나씩 보내기 {kids.filter((k) => k.attended && k.notified).length}/{week.attended}</b>
+              <b>문자 보내기 {kids.filter((k) => k.attended && k.notified).length}/{week.attended}</b>
               <span className="muted tiny">버튼을 누르면 문자 앱이 열려요. 전송을 누르고 이 화면으로 돌아와 다음 아이를 눌러 주세요.</span>
             </div>
             <ul className="list">
@@ -214,8 +209,6 @@ export default async function WeekPage({ params, searchParams }: {
             {waiting > 0 && (
               <details className="card">
                 <summary><b className="small">답장 안 한 {waiting}가족에게 재알림 보내기</b></summary>
-                <KakaoBlock weekId={id} kind="remind" text={commonRemindText(week)}
-                  who={kids.filter((k) => k.attended && !k.reply_at).map((k) => ({ id: k.id, name: k.name, done: k.reminded }))} label="카톡으로 재알림 보내기" />
                 <ul className="list">
                   {kids.filter((k) => k.attended && !k.reply_at).map((k) => (
                     <li key={k.id} className="item">
@@ -254,28 +247,5 @@ export default async function WeekPage({ params, searchParams }: {
         </details>
       </div>
     </main>
-  );
-}
-
-/** One shared KakaoTalk message for many families; each receives it in their own 1:1 chat. */
-function KakaoBlock(props: {
-  weekId: string; kind: "notice" | "publish" | "remind"; text: string; label: string;
-  who: { id: string; name: string; done: boolean }[];
-}) {
-  if (!props.who.length) return null;
-  return (
-    <div className="card small">
-      <ShareButton text={props.text} label={props.label}
-        onShared={markSharedSent.bind(null, props.weekId, props.kind, props.who.map((w) => w.id), props.text)} />
-      <ol className="howto">
-        <li>공유 창에서 <b>카카오톡</b>을 고르세요.</li>
-        <li>아래 엄마들 채팅방을 <b>모두 체크</b>하고 보내기. 각자 1:1 채팅방으로 가요.</li>
-      </ol>
-      <div className="row">
-        {props.who.map((w) => (
-          <span key={w.id} className={`st ${w.done ? "ok" : "wait"}`}>{w.name}{w.done ? " ✓" : ""}</span>
-        ))}
-      </div>
-    </div>
   );
 }

@@ -2,8 +2,6 @@ import { sql, type Kid } from "@/lib/db";
 import { siteUrl, CLASS_KINDS } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
 import CopyButton from "@/components/CopyButton";
-import ShareButton from "@/components/ShareButton";
-import { welcomeText } from "@/lib/notify";
 import { addKid, updateKid, setKidActive } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -70,11 +68,6 @@ export default async function Kids() {
                   <span className="muted">›</span>
                 </summary>
                 <div className="stack" style={{ paddingBottom: 14 }}>
-                  <div className="card small">
-                    <b>처음 한 번: 우리 아이 링크 보내기</b>
-                    <span className="muted tiny">엄마가 이 링크를 한 번 열면 그 폰이 기억돼요. 그다음부터는 매주 카톡으로 한 번에 보내는 공용 링크로 {k.name} 화면이 바로 열려요.</span>
-                    <ShareButton text={welcomeText(k)} label="카톡으로 보내기" className="btn kakao small" />
-                  </div>
                   <div className="row">
                     <CopyButton text={`${siteUrl()}/j/${k.code}`} label="일지 링크 복사" />
                     <a className="btn ghost small" href={`/j/${k.code}`} target="_blank">일지 보기</a>

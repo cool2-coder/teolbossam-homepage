@@ -93,37 +93,3 @@ export async function notifyTeacher(kid: Kid, week: Week) {
     weekId: week.id,
   });
 }
-
-/* 카톡으로 한 번에 보내는 공용 문구 (모든 가족에게 같은 내용, 링크는 /my) */
-type CommonWeek = Pick<Week, "topic" | "body" | "class_date">;
-const myLink = () => `${siteUrl()}/my`;
-
-export function commonNoticeText(w: CommonWeek) {
-  const body = w.body.trim() || `[털보쌤 숲체험] ${formatDate(w.class_date)} ‘${w.topic}’ 숲체험 안내드려요.`;
-  return `${body}\n\n▶ 참석 여부를 눌러 주세요\n${myLink()}`;
-}
-
-export function commonPublishText(w: CommonWeek) {
-  return (
-    `[털보쌤 숲체험] ‘${w.topic}’ 숲 일지가 올라왔어요 🌳\n` +
-    `오늘 찍은 사진과 털보쌤 관찰일지를 보러 와 주세요.\n` +
-    `집에서 아이에게 한마디 들으시면 답장도 남겨 주세요 ^^\n${myLink()}`
-  );
-}
-
-export function commonRemindText(w: CommonWeek) {
-  return (
-    `[털보쌤 숲체험] ‘${w.topic}’ 이야기, 집에서도 했을까요? 🙂\n` +
-    `편하실 때 숲 일지에 한마디 남겨 주시면 털보쌤이 반갑게 읽을게요.\n${myLink()}`
-  );
-}
-
-/** Sent once when a child joins: their own link. Opening it remembers the phone. */
-export function welcomeText(k: KidLike) {
-  return (
-    `[털보쌤 숲체험] ${k.name} ${k.guardian_label}, 반가워요! 🌳\n` +
-    `아래가 ${nick(k.name)}의 숲 일지예요. 지금 한 번만 눌러 주세요.\n` +
-    `그러면 앞으로 털보쌤이 보내 드리는 숲 일지 링크가 이 폰에서 바로 ${nick(k.name)} 화면으로 열려요.\n` +
-    `(가족끼리만 봐 주세요)\n${siteUrl()}/j/${k.code}`
-  );
-}
