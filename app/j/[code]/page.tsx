@@ -5,6 +5,7 @@ import { formatDate, nick, callName, kindOf, kindLabel } from "@/lib/brand";
 import ReplyForm from "@/components/ReplyForm";
 import Rsvp from "@/components/Rsvp";
 import RichText from "@/components/RichText";
+import { Avatar } from "@/components/ProfilePhoto";
 import "./journal.css";
 
 export const dynamic = "force-dynamic";
@@ -54,7 +55,10 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
     <main className="page journal">
       <header className="jhead">
         <small>털보쌤 숲체험 · {settings.season}</small>
-        <h1>{n}의 숲 일지</h1>
+        <div className="jtitle">
+          <Avatar photoId={kid.photo_id} name={callName(kid)} size={64} />
+          <h1>{n}의 숲 일지</h1>
+        </div>
         {weeks.length > 0 && (
           <div className="streak">
             <div className="dots" aria-hidden="true">

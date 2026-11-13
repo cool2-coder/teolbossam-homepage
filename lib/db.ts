@@ -22,6 +22,7 @@ export type Kid = {
   birth_year: number | null;
   gender: string | null;
   call_name: string;
+  photo_id: string | null;
 };
 
 export type Week = {

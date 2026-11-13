@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { sql, getSettings, setSetting, isUuid, type Week } from "@/lib/db";
 import { requireAdmin, ADMIN_COOKIE } from "@/lib/auth";
+import { setProfile } from "@/lib/profile";
 import { publishWeek, remindWeek, noticeWeek, publishText, remindText, noticeText } from "@/lib/notify";
 import { POWERS, kindOf, isKind } from "@/lib/brand";
 
@@ -182,4 +183,12 @@ export async function setWeekKids(weekId: string, form: FormData) {
     await sql`delete from entries where week_id = ${weekId}`;
   }
   redirect(`/admin/weeks/${weekId}?kids=1`);
+}
+
+/** Use one of the class photos (or none) as the child's profile picture. */
+export async function setProfilePhoto(kidId: string, photoId: string | null) {
+  await requireAdmin();
+  if (!isUuid(kidId) || (photoId && !isUuid(photoId))) return;
+  await setProfile(kidId, photoId);
+  revalidatePath("/admin/kids");
 }

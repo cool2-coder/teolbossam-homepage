@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { resizeImage } from "@/lib/resize";
-import { setPhotoTag, deletePhoto } from "@/app/admin/actions";
+import { setPhotoTag, deletePhoto, setProfilePhoto } from "@/app/admin/actions";
 
 type Photo = { id: string; tags: string[] };
 type Kid = { id: string; name: string };
@@ -18,6 +18,7 @@ export default function PhotoSorter(props: { weekId: string; kids: Kid[]; photos
   const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "untagged">("all");
+  const [profileDone, setProfileDone] = useState<string | null>(null);
 
   async function upload(files: FileList | null) {
     if (!files?.length) return;
@@ -79,7 +80,13 @@ export default function PhotoSorter(props: { weekId: string; kids: Kid[]; photos
         <div key={p.id} className="card sorter">
           <img src={`/p/${p.id}`} alt="" loading="lazy" />
           {props.kidId ? (
-            <button type="button" className="btn ghost small" onClick={() => toggle(p.id, props.kidId!)}>이 아이 사진에서 빼기</button>
+            <div className="row" style={{ justifyContent: "flex-end" }}>
+              <button type="button" className="btn ghost small"
+                onClick={async () => { await setProfilePhoto(props.kidId!, p.id); setProfileDone(p.id); }}>
+                {profileDone === p.id ? "✓ 대표 사진으로 정했어요" : "대표 사진으로"}
+              </button>
+              <button type="button" className="btn ghost small" onClick={() => toggle(p.id, props.kidId!)}>이 아이 사진에서 빼기</button>
+            </div>
           ) : (
             <>
               <div className="names">

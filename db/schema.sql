@@ -106,3 +106,6 @@ alter table kids add column if not exists classes text[] not null default '{morn
 alter table kids add column if not exists birth_year int;
 alter table kids add column if not exists gender text;
 alter table kids add column if not exists call_name text not null default '';
+
+-- 아이 대표 프로필 사진
+alter table kids add column if not exists photo_id uuid references photos(id) on delete set null;

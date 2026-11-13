@@ -160,3 +160,5 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
 .toggles label[data-kind]:has(input:checked) { background: var(--k); border-color: var(--k); }
 .kidsum { display: flex; flex-direction: column; gap: 6px; padding: 12px 2px; cursor: pointer; list-style: none; }
 .kidsum::-webkit-details-marker { display: none; }
+.avatar { border-radius: 50%; object-fit: cover; flex: none; display: inline-grid; place-items: center; }
+.avatar.empty { background: var(--pine-soft); color: var(--pine); font-family: var(--f-display); }

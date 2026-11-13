@@ -2,6 +2,7 @@ import { sql, type Kid } from "@/lib/db";
 import { siteUrl, CLASS_KINDS, kindOf, kindLabel, kidInfo, callName, formatDate, type ClassKind } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
 import CopyButton from "@/components/CopyButton";
+import ProfilePhoto, { Avatar } from "@/components/ProfilePhoto";
 import { addKid, updateKid, setKidActive } from "../actions";
 
 export const dynamic = "force-dynamic";
@@ -104,7 +105,10 @@ export default async function Kids() {
                 <details>
                   <summary className="kidsum">
                     <div className="between">
-                      <span><b>{k.name}</b> <span className="muted small">{kidInfo(k)}</span></span>
+                      <span className="row" style={{ flexWrap: "nowrap" }}>
+                        <Avatar photoId={k.photo_id} name={k.name} size={36} />
+                        <span><b>{k.name}</b> <span className="muted small">{kidInfo(k)}</span></span>
+                      </span>
                       <span className="muted">›</span>
                     </div>
                     <div className="row">
@@ -114,6 +118,7 @@ export default async function Kids() {
                     </div>
                   </summary>
                   <div className="stack" style={{ paddingBottom: 14 }}>
+                    <ProfilePhoto kidId={k.id} photoId={k.photo_id} name={k.name} />
                     {hist.length > 0 && (
                       <div className="card small">
                         <b>참여한 수업 {hist.length}번</b>

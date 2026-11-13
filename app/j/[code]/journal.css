@@ -28,3 +28,6 @@
 .journal .longnote { background: var(--acorn-soft); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
 .journal .longnote > span { font-size: 12px; font-weight: 700; color: var(--acorn); }
 .journal .notice .kchip, .journal .meta .kchip { background: var(--k); color: var(--screen); }
+.journal .jtitle { display: flex; align-items: center; gap: 14px; }
+.journal .jtitle .avatar { border: 3px solid color-mix(in srgb, var(--pine-ink) 85%, transparent); }
+.journal .jtitle .avatar.empty { background: var(--pine-ink); }
