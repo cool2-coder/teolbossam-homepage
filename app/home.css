@@ -1,0 +1,23 @@
+.home { max-width: 520px; margin: 0 auto; background: var(--screen); min-height: 100dvh; }
+.home section { padding: 36px max(20px, env(safe-area-inset-left)) 36px max(20px, env(safe-area-inset-right)); display: flex; flex-direction: column; gap: 14px; }
+.home .hero { background: var(--pine); color: var(--pine-ink); padding-top: max(56px, calc(env(safe-area-inset-top) + 40px)); padding-bottom: 44px; gap: 18px; }
+.home .hero small { font-size: 13px; letter-spacing: .06em; opacity: .85; font-weight: 700; }
+.home .hero h1 { font-size: 34px; }
+.home .hero blockquote { margin: 0; font-family: var(--f-hand); font-size: 25px; line-height: 1.35; border-left: 3px solid var(--acorn); padding-left: 12px; }
+.home .hero p { margin: 0; opacity: .92; }
+.home .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--acorn); }
+.home h2 { font-size: 25px; }
+.home p { margin: 0; }
+.home .values { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.home .values div { background: var(--card); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+.home .values div:last-child { grid-column: 1 / -1; }
+.home .values b { font-family: var(--f-display); font-size: 20px; font-weight: 400; color: var(--pine); }
+.home .values span { font-size: 13.5px; color: var(--muted); }
+.home .powers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.home .powers li { display: grid; grid-template-columns: 64px 1fr; gap: 4px 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.home .powers li b { font-family: var(--f-display); font-weight: 400; font-size: 19px; color: var(--pine); grid-row: span 2; }
+.home .powers li strong { font-size: 14.5px; }
+.home .powers li span { font-size: 13.5px; color: var(--muted); }
+.home .soft { background: var(--card); }
+.home .future { background: var(--acorn-soft); }
+.home footer { padding: 28px 20px 40px; font-size: 12px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }

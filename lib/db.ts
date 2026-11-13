@@ -1,0 +1,74 @@
+import postgres from "postgres";
+
+const g = globalThis as unknown as { __sql?: postgres.Sql };
+
+function connect() {
+  const url = process.env.DATABASE_URL || process.env.NETLIFY_DATABASE_URL || process.env.POSTGRES_URL;
+  if (!url) throw new Error("DATABASE_URL이 설정되지 않았습니다.");
+  const local = /localhost|127\.0\.0\.1/.test(url);
+  return postgres(url, { ssl: local ? false : "require", prepare: false, max: 5 });
+}
+
+export const sql: postgres.Sql = g.__sql ?? (g.__sql = connect());
+
+export type Kid = {
+  id: string;
+  name: string;
+  guardian_label: string;
+  phone: string;
+  code: string;
+  active: boolean;
+  classes: string[];
+  birth_year: number | null;
+  gender: string | null;
+  call_name: string;
+  photo_id: string | null;
+  caution: string;
+};
+
+export type Week = {
+  id: string;
+  season: string;
+  number: number;
+  class_date: Date;
+  place: string;
+  meet_time: string;
+  prep: string;
+  body: string;
+  recap: string;
+  kind: string;
+  topic: string;
+  mission: string;
+  published_at: Date | null;
+  reminded_at: Date | null;
+  closed_at: Date | null;
+};
+
+export async function getSettings() {
+  const rows = await sql<{ key: string; value: string }[]>`select key, value from settings`;
+  const m = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+  return {
+    season: m.season ?? "시즌2",
+    seasonWeeks: Number(m.season_weeks ?? 10),
+    remindEnabled: (m.remind_enabled ?? "true") === "true",
+    remindWeekday: Number(m.remind_weekday ?? 4),
+  };
+}
+
+export async function setSetting(key: string, value: string) {
+  await sql`insert into settings (key, value) values (${key}, ${value})
+    on conflict (key) do update set value = excluded.value`;
+}
+
+export const isUuid = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+
+export type Term = { id: string; name: string; start_date: Date; end_date: Date };
+
+/** The term running today, otherwise the most recent one. */
+export async function currentTerm(): Promise<Term | undefined> {
+  const [t] = await sql<Term[]>`
+    select * from terms
+    order by ((now() at time zone 'Asia/Seoul')::date between start_date and end_date) desc, start_date desc
+    limit 1`;
+  return t;
+}
