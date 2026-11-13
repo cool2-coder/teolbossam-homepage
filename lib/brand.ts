@@ -57,8 +57,8 @@ export function callName(k: { name: string; call_name?: string | null }) {
   return n.length >= 3 ? n.slice(1) : n;
 }
 
-/** "2019년생 · 여" */
+/** "19년생 여아" */
 export function kidInfo(k: { birth_year?: number | null; gender?: string | null }) {
-  return [k.birth_year ? `${k.birth_year}년생` : "", k.gender === "F" ? "여" : k.gender === "M" ? "남" : ""]
-    .filter(Boolean).join(" · ");
+  return [k.birth_year ? `${String(k.birth_year).slice(-2)}년생` : "", k.gender === "F" ? "여아" : k.gender === "M" ? "남아" : ""]
+    .filter(Boolean).join(" ");
 }
