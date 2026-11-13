@@ -173,3 +173,14 @@ export async function setWeekKids(weekId: string, form: FormData) {
   }
   redirect(`/admin/weeks/${weekId}?kids=1`);
 }
+
+/** After a shared KakaoTalk send: mark those families as sent for this class. */
+export async function markSharedSent(weekId: string, kind: "publish" | "remind" | "notice", kidIds: string[], body: string) {
+  await requireAdmin();
+  const ids = kidIds.filter(isUuid);
+  if (!ids.length) return;
+  await sql`insert into messages (kid_id, week_id, kind, to_phone, body, status)
+    select id, ${weekId}, ${kind}, '카카오톡', ${body}, 'manual' from kids where id in ${sql(ids)}`;
+  if (kind === "remind") await sql`update weeks set reminded_at = now() where id = ${weekId}`;
+  revalidatePath(`/admin/weeks/${weekId}`);
+}
