@@ -4,7 +4,7 @@ import { sql, isUuid } from "@/lib/db";
 import { weekStats } from "@/lib/queries";
 import { formatDate, formatTime, kindOf, kindLabel } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
-import { publish, remindNow, publishOnly, sendNotice, deleteWeek, saveRecap, setWeekKids } from "../../actions";
+import { publish, remindNow, publishOnly, sendNotice, deleteWeek, saveRecap, setWeekKids, closeWeek, reopenWeek } from "../../actions";
 import { smsConfigured } from "@/lib/sms";
 import { publishText, remindText, noticeText } from "@/lib/notify";
 import SmsButton from "@/components/SmsButton";
@@ -61,6 +61,13 @@ export default async function WeekPage({ params, searchParams }: {
       <div className="kband" />
       <div className="pad">
         {q.sent && <div className="flash">{q.sent}가족에게 일지 문자를 보냈어요.</div>}
+        {week.closed_at && (
+          <form action={reopenWeek.bind(null, id)} className="card small">
+            <b>종료된 수업이에요 ({formatTime(week.closed_at)})</b>
+            <span className="muted tiny">관리 첫 화면에는 안 보이고 ‘종료된 수업’에 모여 있어요. 학부모님 일지는 그대로 보여요.</span>
+            <button className="btn ghost small">다시 열기</button>
+          </form>
+        )}
         {q.recap && <div className="flash">수업 기록을 저장했어요.</div>}
         {q.kids && <div className="flash">이 수업 아이들을 바꿨어요.</div>}
         {q.noticed && <div className="flash">{q.noticed}가족에게 수업 안내 문자를 보냈어요.</div>}
@@ -245,6 +252,17 @@ export default async function WeekPage({ params, searchParams }: {
             ))}
           </>
         )}
+        {!week.closed_at && (
+          <form action={closeWeek.bind(null, id)} className="stack">
+            <button className={`btn ${week.published_at ? "" : "ghost"}`}>수업 종료</button>
+            <p className="muted tiny" style={{ margin: 0 }}>
+              {week.published_at
+                ? "일지까지 보냈으면 종료해 주세요. 관리 첫 화면에서 빠지고 ‘종료된 수업’에 모여요. 학부모님 일지는 그대로 보여요."
+                : "아직 일지를 발행하지 않았어요. 취소된 수업이면 종료해도 돼요."}
+            </p>
+          </form>
+        )}
+
         <details className="danger-zone">
           <summary>이 수업 지우기</summary>
           <form action={deleteWeek.bind(null, id)} className="stack">

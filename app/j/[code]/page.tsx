@@ -35,7 +35,7 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
   const upcoming = await sql<{ id: string; class_date: Date; meet_time: string; place: string; topic: string; prep: string; body: string; kind: string; rsvp: string | null }[]>`
     select w.id, w.class_date, w.meet_time, w.place, w.topic, w.prep, w.body, w.kind, e.rsvp
     from weeks w join entries e on e.week_id = w.id and e.kid_id = ${kid.id}
-    where w.published_at is null and w.class_date >= (now() at time zone 'Asia/Seoul')::date
+    where w.published_at is null and w.closed_at is null and w.class_date >= (now() at time zone 'Asia/Seoul')::date
     order by w.class_date`;
 
   const ids = weeks.map((w) => w.id);

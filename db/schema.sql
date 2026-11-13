@@ -131,3 +131,6 @@ create table if not exists enrollments (
 
 -- 아이 주의사항 (알레르기 등). 수업 화면에 ⚠ 로 보여요.
 alter table kids add column if not exists caution text not null default '';
+
+-- 수업 종료 (관리 화면 목록에서 정리)
+alter table weeks add column if not exists closed_at timestamptz;

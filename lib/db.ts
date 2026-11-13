@@ -41,6 +41,7 @@ export type Week = {
   mission: string;
   published_at: Date | null;
   reminded_at: Date | null;
+  closed_at: Date | null;
 };
 
 export async function getSettings() {

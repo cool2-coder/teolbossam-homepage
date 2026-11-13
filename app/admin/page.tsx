@@ -8,15 +8,18 @@ import { logout } from "./actions";
 
 export const dynamic = "force-dynamic";
 
-export default async function Dashboard() {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ closed?: string }> }) {
+  const q = await searchParams;
   const s = await getSettings();
   const weeks = await weekStats();
   const [{ n: kidCount }] = await sql<{ n: number }[]>`select count(*)::int as n from kids where active`;
   // For each class kind: the next class still to run, otherwise the most recent one.
+  const open = weeks.filter((w) => !w.closed_at);
+  const closedCount = weeks.length - open.length;
   const pick = (k: ClassKind) => {
-    const list = weeks.filter((w) => kindOf(w.kind) === k);
-    const open = list.filter((w) => !w.published_at).sort((a, b) => +a.class_date - +b.class_date);
-    return open[0] ?? list[0];
+    const list = open.filter((w) => kindOf(w.kind) === k);
+    const upcoming = list.filter((w) => !w.published_at).sort((a, b) => +a.class_date - +b.class_date);
+    return upcoming[0] ?? list[0];
   };
   const current = (Object.keys(CLASS_KINDS) as ClassKind[]).map((k) => [k, pick(k)] as const);
   const shown = new Set(current.map(([, w]) => w?.id));
@@ -77,18 +80,21 @@ export default async function Dashboard() {
           )}
         </div>
 
+        {q.closed && <div className="flash">수업을 종료했어요. ‘종료된 수업’에서 다시 볼 수 있어요.</div>}
+
         <ul className="list">
           <li><Link className="item" href="/admin/terms"><span>모집 기수 · 등록 · 입금</span><span className="muted">›</span></Link></li>
           <li><Link className="item" href="/admin/kids"><span>아이 명단</span><span className="muted">{kidCount}명 ›</span></Link></li>
+          <li><Link className="item" href="/admin/closed"><span>종료된 수업</span><span className="muted">{closedCount}개 ›</span></Link></li>
           <li><Link className="item" href="/admin/messages"><span>문자 기록</span><span className="muted">›</span></Link></li>
           <li><Link className="item" href="/admin/settings"><span>설정</span><span className="muted">›</span></Link></li>
         </ul>
 
-        {weeks.some((w) => !shown.has(w.id)) && (
+        {open.some((w) => !shown.has(w.id)) && (
           <>
             <p className="sec">다른 수업</p>
             <ul className="list">
-              {weeks.filter((w) => !shown.has(w.id)).map((w) => (
+              {open.filter((w) => !shown.has(w.id)).map((w) => (
                 <li key={w.id} data-kind={kindOf(w.kind)}>
                   <Link className="item" href={`/admin/weeks/${w.id}`}>
                     <span><span className="kchip">{CLASS_KINDS[kindOf(w.kind)].label}</span>{" "}

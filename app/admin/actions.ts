@@ -272,3 +272,16 @@ export async function setPaid(termId: string, kidId: string, kind: string, paid:
   await sql`update enrollments set paid = ${paid} where term_id = ${termId} and kid_id = ${kidId} and kind = ${kind}`;
   revalidatePath(`/admin/terms/${termId}`);
 }
+
+/* 수업 종료 / 다시 열기 */
+export async function closeWeek(id: string) {
+  await requireAdmin();
+  await sql`update weeks set closed_at = now() where id = ${id}`;
+  redirect(`/admin?closed=1`);
+}
+
+export async function reopenWeek(id: string) {
+  await requireAdmin();
+  await sql`update weeks set closed_at = null where id = ${id}`;
+  redirect(`/admin/weeks/${id}`);
+}
