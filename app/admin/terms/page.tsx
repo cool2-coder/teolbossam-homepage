@@ -3,6 +3,7 @@ import { sql, type Term } from "@/lib/db";
 import { formatDate, kstDateString } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
 import { createTerm } from "../actions";
+import { termSummary } from "@/lib/terms";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,7 @@ export default async function Terms() {
       (select count(distinct kid_id)::int from enrollments e where e.term_id = t.id) as kids,
       (select count(*)::int from enrollments e where e.term_id = t.id and not e.paid) as unpaid
     from terms t order by start_date desc`;
+  const sums = await Promise.all(terms.map((t) => termSummary(t)));
   const today = new Date();
   const m = new Date(today.getFullYear(), today.getMonth(), 1);
   const end = new Date(today.getFullYear(), today.getMonth() + 2, 0);
@@ -20,12 +22,14 @@ export default async function Terms() {
       <AdminTop title="모집 기수" back="/admin" />
       <div className="pad">
         <ul className="list">
-          {terms.map((t) => (
+          {terms.map((t, i) => (
             <li key={t.id}>
               <Link className="item" href={`/admin/terms/${t.id}`}>
                 <span><b>{t.name}</b> <span className="muted small tnum">{formatDate(t.start_date)} ~ {formatDate(t.end_date)}</span></span>
-                <span className="row small tnum">
+                <span className="row small tnum" style={{ justifyContent: "flex-end" }}>
                   <span className="muted">{t.kids}명</span>
+                  <span className="st new">신규 {sums[i].newKids.length}</span>
+                  <span className="st ok">재등록 {sums[i].returning}</span>
                   {t.unpaid > 0 && <span className="st wait">입금 대기 {t.unpaid}</span>}
                 </span>
               </Link>

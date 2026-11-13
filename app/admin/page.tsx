@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { sql, getSettings, currentTerm } from "@/lib/db";
 import { weekStats } from "@/lib/queries";
+import { termSummary } from "@/lib/terms";
 import { formatDate, WEEKDAYS, CLASS_KINDS, kindOf, type ClassKind } from "@/lib/brand";
 import type { WeekStat } from "@/lib/queries";
 import { smsConfigured } from "@/lib/sms";
@@ -24,15 +25,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const current = (Object.keys(CLASS_KINDS) as ClassKind[]).map((k) => [k, pick(k)] as const);
   const shown = new Set(current.map(([, w]) => w?.id));
   const term = await currentTerm();
-  const termStats = term
-    ? (await sql<{ kids: number; unpaid: number; recontact: number }[]>`
-        select
-          (select count(distinct kid_id)::int from enrollments where term_id = ${term.id}) as kids,
-          (select count(*)::int from enrollments where term_id = ${term.id} and not paid) as unpaid,
-          (select count(distinct e.kid_id)::int from enrollments e
-             where e.term_id = (select id from terms where start_date < ${term.start_date} order by start_date desc limit 1)
-               and e.kid_id not in (select kid_id from enrollments where term_id = ${term.id})) as recontact`)[0]
-    : null;
+  const termStats = term ? await termSummary(term) : null;
 
   return (
     <main className="page">
@@ -53,8 +46,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             <div className="between"><b>{term.name}</b><span className="muted">›</span></div>
             <div className="row small tnum">
               <span className="st ok">등록 {termStats.kids}명</span>
+              <span className="st new">신규 {termStats.newKids.length}</span>
+              <span className="st ok">재등록 {termStats.returning}</span>
               <span className={`st ${termStats.unpaid ? "wait" : "ok"}`}>입금 대기 {termStats.unpaid}</span>
-              <span className={`st ${termStats.recontact ? "wait" : "ok"}`}>재등록 연락 {termStats.recontact}</span>
+              {termStats.prev && <span className={`st ${termStats.recontact.length ? "wait" : "ok"}`}>재등록 연락 {termStats.recontact.length}</span>}
             </div>
           </Link>
         ) : (

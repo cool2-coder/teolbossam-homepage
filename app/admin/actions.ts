@@ -249,15 +249,7 @@ export async function setEnrollments(termId: string, kind: string, form: FormDat
     .map((r) => r.kid_id);
   const added = ids.filter((i) => !before.includes(i));
   const removed = before.filter((i) => !ids.includes(i));
-  if (added.length) {
-    await sql`insert into enrollments (term_id, kid_id, kind) select ${termId}, id, ${kind} from kids where id in ${sql(added)}
-      on conflict do nothing`;
-    await sql`insert into entries (week_id, kid_id)
-      select w.id, k.id from weeks w, kids k
-      where k.id in ${sql(added)} and w.kind = ${kind} and w.published_at is null
-        and w.class_date between ${t.start_date} and ${t.end_date}
-      on conflict do nothing`;
-  }
+  if (added.length) await enrollKids(termId, kind, added, t);
   if (removed.length) {
     await sql`delete from enrollments where term_id = ${termId} and kind = ${kind} and kid_id in ${sql(removed)}`;
     await sql`delete from entries e using weeks w
@@ -284,4 +276,47 @@ export async function reopenWeek(id: string) {
   await requireAdmin();
   await sql`update weeks set closed_at = null where id = ${id}`;
   redirect(`/admin/weeks/${id}`);
+}
+
+async function enrollKids(termId: string, kind: string, ids: string[], t: { start_date: Date; end_date: Date }) {
+  await sql`insert into enrollments (term_id, kid_id, kind) select ${termId}, id, ${kind} from kids where id in ${sql(ids)}
+    on conflict do nothing`;
+  await sql`insert into entries (week_id, kid_id)
+    select w.id, k.id from weeks w, kids k
+    where k.id in ${sql(ids)} and w.kind = ${kind} and w.published_at is null
+      and w.class_date between ${t.start_date} and ${t.end_date}
+    on conflict do nothing`;
+}
+
+/** A child coming for the first time: add to the roster and register for this class in one go. */
+export async function addNewKidToTerm(termId: string, kind: string, form: FormData) {
+  await requireAdmin();
+  if (!isKind(kind)) return;
+  const name = str(form, "name", 30);
+  const [t] = await sql<{ start_date: Date; end_date: Date }[]>`select start_date, end_date from terms where id = ${termId}`;
+  if (!name || !t) return;
+  const code = crypto.randomBytes(6).toString("base64url");
+  const [kid] = await sql<{ id: string }[]>`insert into kids (name, guardian_label, phone, code, classes, birth_year, gender)
+    values (${name}, ${str(form, "guardian_label", 10) || "어머님"}, ${str(form, "phone", 20)}, ${code}, ${[kind]},
+            ${birthYear(form)}, ${genderOf(form)}) returning id`;
+  await enrollKids(termId, kind, [kid.id], t);
+  redirect(`/admin/terms/${termId}?added=${encodeURIComponent(name)}`);
+}
+
+/* 재등록 연락 */
+export async function setRecontact(termId: string, kidId: string, status: "contacted" | "declined" | null) {
+  await requireAdmin();
+  if (status) {
+    await sql`insert into recontacts (term_id, kid_id, status) values (${termId}, ${kidId}, ${status})
+      on conflict (term_id, kid_id) do update set status = excluded.status, updated_at = now()`;
+  } else {
+    await sql`delete from recontacts where term_id = ${termId} and kid_id = ${kidId}`;
+  }
+  revalidatePath(`/admin/terms/${termId}/recontact`);
+}
+
+export async function saveRecontactText(termId: string, form: FormData) {
+  await requireAdmin();
+  await sql`update terms set recontact_text = ${str(form, "recontact_text", 2000)} where id = ${termId}`;
+  redirect(`/admin/terms/${termId}/recontact?saved=1`);
 }

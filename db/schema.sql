@@ -134,3 +134,13 @@ alter table kids add column if not exists caution text not null default '';
 
 -- 수업 종료 (관리 화면 목록에서 정리)
 alter table weeks add column if not exists closed_at timestamptz;
+
+-- 재등록 연락: 기수별 안내 문구와 가족별 연락 상태
+alter table terms add column if not exists recontact_text text not null default '';
+create table if not exists recontacts (
+  term_id uuid not null references terms(id) on delete cascade,
+  kid_id uuid not null references kids(id) on delete cascade,
+  status text not null,
+  updated_at timestamptz not null default now(),
+  primary key (term_id, kid_id)
+);

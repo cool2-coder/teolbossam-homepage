@@ -4,7 +4,9 @@ import { CLASS_KINDS, formatDate, kstDateString, type ClassKind } from "@/lib/br
 import AdminTop from "@/components/AdminTop";
 import PaidToggle from "@/components/PaidToggle";
 import { Avatar } from "@/components/ProfilePhoto";
-import { setEnrollments, updateTerm, deleteTerm } from "../../actions";
+import { setEnrollments, updateTerm, deleteTerm, addNewKidToTerm } from "../../actions";
+import Link from "next/link";
+import { termSummary } from "@/lib/terms";
 
 export const dynamic = "force-dynamic";
 
@@ -12,24 +14,18 @@ type En = { kid_id: string; kind: string; paid: boolean };
 type K = { id: string; name: string; phone: string; guardian_label: string; caution: string; photo_id: string | null };
 
 export default async function TermPage({ params, searchParams }: {
-  params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }>;
+  params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; added?: string }>;
 }) {
   const { id } = await params;
-  const { saved } = await searchParams;
+  const { saved, added } = await searchParams;
   if (!isUuid(id)) notFound();
   const [term] = await sql<Term[]>`select * from terms where id = ${id}`;
   if (!term) notFound();
   const ens = await sql<En[]>`select kid_id, kind, paid from enrollments where term_id = ${id}`;
   const kids = await sql<K[]>`select id, name, phone, guardian_label, caution, photo_id from kids where active order by name`;
   const byId = new Map(kids.map((k) => [k.id, k]));
-  // Families from the previous term who haven't registered for this one yet.
-  const [prev] = await sql<Term[]>`select * from terms where start_date < ${term.start_date} order by start_date desc limit 1`;
-  const prevKids = prev
-    ? await sql<{ kid_id: string }[]>`select distinct kid_id from enrollments where term_id = ${prev.id}
-        and kid_id not in (select kid_id from enrollments where term_id = ${id})`
-    : [];
-  const kidCount = new Set(ens.map((e) => e.kid_id)).size;
-  const unpaid = ens.filter((e) => !e.paid).length;
+  const sum = await termSummary(term);
+  const isNew = new Set(sum.newKids);
 
   return (
     <main className="page">
@@ -37,13 +33,22 @@ export default async function TermPage({ params, searchParams }: {
       <div className="pad">
         <div className="card">
           <span className="muted small tnum">{formatDate(term.start_date)} ~ {formatDate(term.end_date)}</span>
+          <div className="statgrid">
+            <div><b>{sum.kids}</b><span>등록</span></div>
+            <div><b style={{ color: "var(--acorn)" }}>{sum.newKids.length}</b><span>신규</span></div>
+            <div><b style={{ color: "var(--pine)" }}>{sum.returning}</b><span>재등록</span></div>
+          </div>
           <div className="row small tnum">
-            <span className="st ok">등록 {kidCount}명</span>
-            <span className={`st ${unpaid ? "wait" : "ok"}`}>입금 대기 {unpaid}</span>
-            {prev && <span className={`st ${prevKids.length ? "wait" : "ok"}`}>재등록 연락 {prevKids.length}</span>}
+            <span className={`st ${sum.unpaid ? "wait" : "ok"}`}>입금 대기 {sum.unpaid}</span>
           </div>
           <span className="muted tiny">반에 등록한 아이는 이 기간의 그 반 수업 명단에 자동으로 들어가요.</span>
         </div>
+        {sum.prev && (
+          <Link href={`/admin/terms/${id}/recontact`} className="btn ghost">
+            재등록 연락드리기 · {sum.prev.name} 가족 중 {sum.recontact.length}가족 아직 미등록 ›
+          </Link>
+        )}
+        {added && <div className="flash">{added} 신규 등록했어요. 아이 명단에도 들어갔어요.</div>}
         {saved && <div className="flash">{CLASS_KINDS[saved as ClassKind]?.label ?? ""} 등록을 저장했어요.</div>}
 
         {(Object.keys(CLASS_KINDS) as ClassKind[]).map((kind) => {
@@ -64,7 +69,7 @@ export default async function TermPage({ params, searchParams }: {
                         <li key={e.kid_id} className="kidrow">
                           <Avatar photoId={k.photo_id} name={k.name} size={28} />
                           <span style={{ flex: 1, minWidth: 0 }}>
-                            <b>{k.name}</b>
+                            <b>{k.name}</b>{isNew.has(k.id) && <span className="st new" style={{ marginLeft: 6 }}>신규</span>}
                             {k.caution && <span className="caution" title={k.caution}> ⚠ {k.caution}</span>}
                           </span>
                           <PaidToggle termId={id} kidId={k.id} kind={kind} paid={e.paid} />
@@ -84,32 +89,33 @@ export default async function TermPage({ params, searchParams }: {
                     <button className="btn ghost">저장</button>
                   </form>
                 </details>
+                <details>
+                  <summary className="small" style={{ cursor: "pointer" }}>+ 처음 오는 아이 신규 등록</summary>
+                  <form action={addNewKidToTerm.bind(null, id, kind)} className="stack" style={{ marginTop: 10 }}>
+                    <input name="name" type="text" required placeholder="아이 이름 (성 포함) 예: 문서윤" aria-label="아이 이름" />
+                    <div className="row" style={{ flexWrap: "nowrap" }}>
+                      <select name="birth_year" defaultValue="" aria-label="출생연도" style={{ flex: 1 }}>
+                        <option value="">출생연도</option>
+                        {Array.from({ length: 14 }, (_, i) => new Date().getFullYear() - 3 - i).map((y) => (
+                          <option key={y} value={y}>{String(y).slice(-2)}년생</option>
+                        ))}
+                      </select>
+                      <div className="toggles">
+                        <label><input type="radio" name="gender" value="F" /> 여아</label>
+                        <label><input type="radio" name="gender" value="M" /> 남아</label>
+                      </div>
+                    </div>
+                    <div className="row" style={{ flexWrap: "nowrap" }}>
+                      <input name="phone" type="tel" inputMode="tel" placeholder="엄마 번호 010-0000-0000" aria-label="문자 받을 번호" style={{ flex: 1 }} />
+                      <input name="guardian_label" type="text" defaultValue="어머님" aria-label="호칭" style={{ width: 90 }} />
+                    </div>
+                    <button className="btn">신규 등록</button>
+                  </form>
+                </details>
               </div>
             </section>
           );
         })}
-
-        {prev && (
-          <>
-            <p className="sec">재등록 연락 ({prev.name}에는 있었는데 아직 등록 안 한 가족)</p>
-            {prevKids.length === 0 ? (
-              <div className="card small">지난 기수 가족이 모두 다시 등록했어요.</div>
-            ) : (
-              <ul className="list">
-                {prevKids.map(({ kid_id }) => {
-                  const k = byId.get(kid_id);
-                  if (!k) return null;
-                  return (
-                    <li key={kid_id} className="item">
-                      <span><b>{k.name}</b> <span className="muted small">{k.guardian_label} · {k.phone || "번호 없음"}</span></span>
-                      {k.phone && <a className="btn ghost small" href={`sms:${k.phone.replace(/[^\d+]/g, "")}`}>문자</a>}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </>
-        )}
 
         <details className="danger-zone">
           <summary>기수 이름·기간 고치기 / 지우기</summary>
