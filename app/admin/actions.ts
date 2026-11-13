@@ -192,3 +192,16 @@ export async function setProfilePhoto(kidId: string, photoId: string | null) {
   await setProfile(kidId, photoId);
   revalidatePath("/admin/kids");
 }
+
+/* 문자 기록 지우기 */
+export async function deleteMessage(id: number) {
+  await requireAdmin();
+  await sql`delete from messages where id = ${id}`;
+  revalidatePath("/admin/messages");
+}
+
+export async function deleteAllMessages() {
+  await requireAdmin();
+  await sql`delete from messages`;
+  redirect("/admin/messages?cleared=1");
+}
