@@ -7,12 +7,20 @@ import { revalidatePath } from "next/cache";
 import { sql, getSettings, setSetting, isUuid, type Week } from "@/lib/db";
 import { requireAdmin, ADMIN_COOKIE } from "@/lib/auth";
 import { publishWeek, remindWeek, noticeWeek, publishText, remindText, noticeText } from "@/lib/notify";
-import { POWERS, kindOf } from "@/lib/brand";
+import { POWERS, kindOf, isKind } from "@/lib/brand";
 
 const str = (f: FormData, k: string, max = 2000) => String(f.get(k) ?? "").trim().slice(0, max);
+const birthYear = (f: FormData) => {
+  const y = Number(f.get("birth_year"));
+  return y >= 2005 && y <= 2030 ? y : null;
+};
+const genderOf = (f: FormData) => {
+  const g = String(f.get("gender") ?? "");
+  return g === "F" || g === "M" ? g : null;
+};
 const classesOf = (f: FormData) => {
-  const c = f.getAll("classes").map(String).filter((x) => x === "morning" || x === "indoor");
-  return c.length ? c : ["morning", "indoor"];
+  const c = f.getAll("classes").map(String).filter(isKind);
+  return c.length ? c : ["morning"];
 };
 
 export async function logout() {
@@ -27,8 +35,9 @@ export async function addKid(form: FormData) {
   if (!name) return;
   const code = crypto.randomBytes(6).toString("base64url");
   const classes = classesOf(form);
-  const [kid] = await sql<{ id: string }[]>`insert into kids (name, guardian_label, phone, code, classes)
-    values (${name}, ${str(form, "guardian_label", 10) || "어머님"}, ${str(form, "phone", 20)}, ${code}, ${classes}) returning id`;
+  const [kid] = await sql<{ id: string }[]>`insert into kids (name, guardian_label, phone, code, classes, birth_year, gender, call_name)
+    values (${name}, ${str(form, "guardian_label", 10) || "어머님"}, ${str(form, "phone", 20)}, ${code}, ${classes},
+            ${birthYear(form)}, ${genderOf(form)}, ${str(form, "call_name", 20)}) returning id`;
   // Add to this kid's upcoming classes.
   await sql`insert into entries (week_id, kid_id) select id, ${kid.id} from weeks
     where published_at is null and kind = any(${classes}) on conflict do nothing`;
@@ -38,7 +47,8 @@ export async function addKid(form: FormData) {
 export async function updateKid(id: string, form: FormData) {
   await requireAdmin();
   await sql`update kids set name = ${str(form, "name", 30)}, guardian_label = ${str(form, "guardian_label", 10) || "어머님"},
-    phone = ${str(form, "phone", 20)}, classes = ${classesOf(form)} where id = ${id}`;
+    phone = ${str(form, "phone", 20)}, classes = ${classesOf(form)}, birth_year = ${birthYear(form)},
+    gender = ${genderOf(form)}, call_name = ${str(form, "call_name", 20)} where id = ${id}`;
   revalidatePath("/admin/kids");
 }
 

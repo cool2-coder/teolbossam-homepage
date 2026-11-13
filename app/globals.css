@@ -71,7 +71,7 @@ h1, h2, h3 { font-family: var(--f-display); font-weight: 400; line-height: 1.3; 
 .st.wait { background: var(--wait-soft); color: var(--wait); }
 .st.off { background: var(--line); color: var(--muted); }
 
-label.l { font-size: 13px; font-weight: 700; display: block; margin-bottom: 4px; }
+.l { font-size: 13px; font-weight: 700; display: block; margin-bottom: 4px; }
 .field { display: flex; flex-direction: column; }
 input[type=text], input[type=tel], input[type=password], input[type=date], input[type=number], textarea, select {
   width: 100%; border: 1.5px solid var(--line); border-radius: 12px; padding: 11px 12px;
@@ -139,10 +139,12 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
 .kidrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 10px 2px; border-bottom: 1px solid var(--line); }
 
 /* 수업 종류 색: 아침숲(초록) / 실내숲(파랑) */
-:root { --morning: #2f5d43; --morning-soft: #dbe8dc; --indoor: #35588a; --indoor-soft: #dce5f2; }
-@media (prefers-color-scheme: dark) { :root { --morning: #7fbf96; --morning-soft: #22342a; --indoor: #8fb2e3; --indoor-soft: #1e2a3b; } }
+:root { --morning: #2f5d43; --morning-soft: #dbe8dc; --indoor: #35588a; --indoor-soft: #dce5f2; --explorer: #a4561a; --explorer-soft: #f6e3d3; --oneday: #7a4a8c; --oneday-soft: #eee2f2; }
+@media (prefers-color-scheme: dark) { :root { --morning: #7fbf96; --morning-soft: #22342a; --indoor: #8fb2e3; --indoor-soft: #1e2a3b; --explorer: #eba56c; --explorer-soft: #3a2616; --oneday: #c9a0dc; --oneday-soft: #2f2236; } }
 [data-kind="morning"] { --k: var(--morning); --k-soft: var(--morning-soft); }
 [data-kind="indoor"] { --k: var(--indoor); --k-soft: var(--indoor-soft); }
+[data-kind="explorer"] { --k: var(--explorer); --k-soft: var(--explorer-soft); }
+[data-kind="oneday"] { --k: var(--oneday); --k-soft: var(--oneday-soft); }
 .kchip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: var(--k-soft); color: var(--k); white-space: nowrap; }
 .kindpick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .kindpick label { border: 2px solid var(--line); border-radius: 14px; padding: 14px; text-align: center; font-weight: 700; cursor: pointer; }
@@ -156,3 +158,5 @@ textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
 .kcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
 .kband { height: 6px; background: var(--k); }
 .toggles label[data-kind]:has(input:checked) { background: var(--k); border-color: var(--k); }
+.kidsum { display: flex; flex-direction: column; gap: 6px; padding: 12px 2px; cursor: pointer; list-style: none; }
+.kidsum::-webkit-details-marker { display: none; }

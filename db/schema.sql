@@ -101,3 +101,8 @@ alter table weeks add column if not exists kind text not null default 'morning';
 
 -- 아이가 듣는 수업 (morning / indoor)
 alter table kids add column if not exists classes text[] not null default '{morning,indoor}';
+
+-- 아이 정보: 출생연도, 성별, 부르는 이름(비우면 성을 뺀 이름)
+alter table kids add column if not exists birth_year int;
+alter table kids add column if not exists gender text;
+alter table kids add column if not exists call_name text not null default '';

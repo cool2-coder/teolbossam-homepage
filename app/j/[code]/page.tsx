@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { sql, getSettings, type Kid } from "@/lib/db";
-import { formatDate, nick, kindOf, kindLabel } from "@/lib/brand";
+import { formatDate, nick, callName, kindOf, kindLabel } from "@/lib/brand";
 import ReplyForm from "@/components/ReplyForm";
 import Rsvp from "@/components/Rsvp";
 import RichText from "@/components/RichText";
@@ -48,7 +48,7 @@ export default async function Journal({ params }: { params: Promise<{ code: stri
     ? await sql<{ id: string; reply_id: string }[]>`select id, reply_id from photos where reply_id in ${sql(replyIds)}`
     : [];
 
-  const n = nick(kid.name);
+  const n = nick(callName(kid));
 
   return (
     <main className="page journal">

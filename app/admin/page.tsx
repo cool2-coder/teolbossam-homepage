@@ -108,11 +108,7 @@ function KindCard({ kind, week }: { kind: ClassKind; week?: WeekStat }) {
             </div>
           )}
         </Link>
-      ) : (
-        <div className="kbody">
-          <span className="muted small">아직 {meta.label} 수업이 없어요.</span>
-        </div>
-      )}
+      ) : null}
     </section>
   );
 }

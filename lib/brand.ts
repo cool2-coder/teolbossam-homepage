@@ -41,7 +41,24 @@ export function nick(name: string) {
 export const CLASS_KINDS = {
   morning: { label: "아침숲", icon: "🌳" },
   indoor: { label: "실내숲", icon: "🏠" },
+  explorer: { label: "초등숲탐험대", icon: "🧭" },
+  oneday: { label: "하루 숲체험", icon: "🎒" },
 } as const;
 export type ClassKind = keyof typeof CLASS_KINDS;
-export const kindOf = (k: string): ClassKind => (k === "indoor" ? "indoor" : "morning");
+export const isKind = (k: string): k is ClassKind => k in CLASS_KINDS;
+export const kindOf = (k: string): ClassKind => (isKind(k) ? k : "morning");
 export const kindLabel = (k: string) => CLASS_KINDS[kindOf(k)].label;
+
+/** "문서윤" → "서윤" (first character is the family name). A set 부르는 이름 wins. */
+export function callName(k: { name: string; call_name?: string | null }) {
+  const c = k.call_name?.trim();
+  if (c) return c;
+  const n = k.name.trim();
+  return n.length >= 3 ? n.slice(1) : n;
+}
+
+/** "2019년생 · 여" */
+export function kidInfo(k: { birth_year?: number | null; gender?: string | null }) {
+  return [k.birth_year ? `${k.birth_year}년생` : "", k.gender === "F" ? "여" : k.gender === "M" ? "남" : ""]
+    .filter(Boolean).join(" · ");
+}

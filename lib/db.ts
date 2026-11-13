@@ -19,6 +19,9 @@ export type Kid = {
   code: string;
   active: boolean;
   classes: string[];
+  birth_year: number | null;
+  gender: string | null;
+  call_name: string;
 };
 
 export type Week = {

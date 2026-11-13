@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { sql, isUuid, type Kid, type Week } from "@/lib/db";
-import { POWERS, nick, formatDate } from "@/lib/brand";
+import { POWERS, nick, formatDate, callName } from "@/lib/brand";
 import AdminTop from "@/components/AdminTop";
 import PhotoSorter from "@/components/PhotoSorter";
 import { saveEntry } from "../../../../actions";
@@ -27,16 +27,16 @@ export default async function KidEntry({ params }: { params: Promise<{ id: strin
 
   return (
     <main className="page">
-      <AdminTop title={`${formatDate(week.class_date)} · ${nick(kid.name)} 기록`} back={`/admin/weeks/${id}`} />
+      <AdminTop title={`${formatDate(week.class_date)} · ${nick(callName(kid))} 기록`} back={`/admin/weeks/${id}`} />
       <div className="pad">
         <form action={saveEntry.bind(null, id, kidId, next)} className="stack">
           <div className="toggles">
             <label><input type="checkbox" name="attended" defaultChecked={entry?.attended ?? true} /> 오늘 출석</label>
           </div>
           <div className="field">
-            <label className="l" htmlFor="note">{nick(kid.name)} 관찰일지</label>
+            <label className="l" htmlFor="note">{nick(callName(kid))} 관찰일지</label>
             <textarea id="note" name="note" defaultValue={entry?.note} style={{ minHeight: 360 }}
-              placeholder={`${nick(kid.name)}가 오늘 숲에서 한 말, 발견한 것. 쓰신 글을 그대로 붙여 넣어도 돼요. (길이 제한 없음)`} />
+              placeholder={`${nick(callName(kid))}가 오늘 숲에서 한 말, 발견한 것. 쓰신 글을 그대로 붙여 넣어도 돼요. (길이 제한 없음)`} />
           </div>
           <div className="field">
             <span className="l">오늘 기른 힘</span>
@@ -51,7 +51,7 @@ export default async function KidEntry({ params }: { params: Promise<{ id: strin
           <button className="btn">{next ? "저장하고 다음 아이 ›" : "저장하고 끝내기"}</button>
         </form>
 
-        <p className="sec">{nick(kid.name)} 사진 {photos.length}장</p>
+        <p className="sec">{nick(callName(kid))} 사진 {photos.length}장</p>
         <PhotoSorter weekId={id} kids={[]} photos={photos} kidId={kidId} />
 
         {reply && (

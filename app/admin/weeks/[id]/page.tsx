@@ -13,7 +13,7 @@ import RsvpToggle from "@/components/RsvpToggle";
 export const dynamic = "force-dynamic";
 
 type KidRow = {
-  id: string; name: string; guardian_label: string; phone: string; code: string; reminded: boolean; noticed: boolean; rsvp: string | null; attended: boolean; note: string; photos: number;
+  id: string; name: string; guardian_label: string; phone: string; code: string; call_name: string; reminded: boolean; noticed: boolean; rsvp: string | null; attended: boolean; note: string; photos: number;
   reply_body: string | null; reply_at: Date | null; reply_photo: string | null; notified: boolean;
 };
 
@@ -27,7 +27,7 @@ export default async function WeekPage({ params, searchParams }: {
   if (!week) notFound();
 
   const kids = await sql<KidRow[]>`
-    select k.id, k.name, k.guardian_label, k.phone, k.code, e.attended, e.note, e.rsvp,
+    select k.id, k.name, k.call_name, k.guardian_label, k.phone, k.code, e.attended, e.note, e.rsvp,
       exists (select 1 from messages m where m.week_id = ${id} and m.kid_id = k.id and m.kind = 'notice'
               and m.status in ('sent','manual')) as noticed,
       exists (select 1 from messages m where m.week_id = ${id} and m.kid_id = k.id and m.kind = 'remind'
